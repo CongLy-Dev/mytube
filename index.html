@@ -1,0 +1,3671 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<meta name="apple-mobile-web-app-capable"
+      content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style"
+      content="black">
+
+<meta name="theme-color"
+      content="#0f0f0f">
+
+<title>MyTube</title>
+
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+}
+
+html,
+body {
+    margin:0;
+    padding:0;
+
+    width:100%;
+    min-height:100%;
+
+    background:#0f0f0f;
+
+    color:#fff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    -webkit-text-size-adjust:none;
+}
+
+body {
+    overflow-x:hidden;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:60px;
+
+    background:#181818;
+
+    border-bottom:
+        1px solid #292929;
+
+    z-index:1000;
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-box-align:center;
+
+    -webkit-align-items:center;
+
+    align-items:center;
+
+    padding:
+        0 14px;
+}
+
+
+.logo {
+
+    width:125px;
+
+    -webkit-flex-shrink:0;
+
+    flex-shrink:0;
+
+    font-size:21px;
+
+    font-weight:bold;
+
+    white-space:nowrap;
+}
+
+
+.logo-red {
+
+    color:#ff0000;
+
+    margin-right:3px;
+}
+
+
+.search-area {
+
+    height:38px;
+
+    max-width:700px;
+
+    margin:
+        0 auto;
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-box-flex:1;
+
+    -webkit-flex:1;
+
+    flex:1;
+}
+
+
+.search-input {
+
+    height:38px;
+
+    width:100%;
+
+    padding:
+        0 13px;
+
+    background:#121212;
+
+    border:
+        1px solid #303030;
+
+    color:#fff;
+
+    outline:none;
+
+    font-size:15px;
+
+    -webkit-appearance:none;
+
+    border-radius:
+        2px 0 0 2px;
+}
+
+
+.search-button {
+
+    width:58px;
+
+    height:38px;
+
+    border:0;
+
+    background:#303030;
+
+    color:#fff;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    border-radius:
+        0 2px 2px 0;
+}
+
+
+.header-right {
+
+    width:80px;
+
+    -webkit-flex-shrink:0;
+
+    flex-shrink:0;
+
+    text-align:right;
+
+    color:#aaa;
+
+    font-size:18px;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main {
+
+    padding-top:60px;
+
+    width:100%;
+
+    max-width:1500px;
+
+    margin:0 auto;
+}
+
+
+/* =========================================================
+   HOME LAYOUT
+========================================================= */
+
+.home-layout {
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    width:100%;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+
+    width:220px;
+
+    background:#181818;
+
+    border-right:
+        1px solid #292929;
+
+    min-height:
+        calc(100vh - 60px);
+
+    -webkit-flex-shrink:0;
+
+    flex-shrink:0;
+
+    padding-top:12px;
+}
+
+
+.sidebar-item {
+
+    height:46px;
+
+    padding:
+        0 18px;
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-box-align:center;
+
+    -webkit-align-items:center;
+
+    align-items:center;
+
+    color:#ddd;
+
+    font-size:14px;
+
+    cursor:pointer;
+}
+
+
+.sidebar-item.active {
+
+    background:#303030;
+
+    color:#fff;
+}
+
+
+.sidebar-icon {
+
+    width:30px;
+
+    font-size:18px;
+}
+
+
+.sidebar-line {
+
+    height:1px;
+
+    background:#303030;
+
+    margin:
+        10px 0;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content {
+
+    -webkit-box-flex:1;
+
+    -webkit-flex:1;
+
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* =========================================================
+   PLAYER AREA
+========================================================= */
+
+.player-area {
+
+    background:#000;
+
+    width:100%;
+}
+
+
+.player-container {
+
+    width:100%;
+
+    max-width:1050px;
+
+    margin:0 auto;
+
+    background:#000;
+
+    position:relative;
+}
+
+
+.player-container:before {
+
+    content:"";
+
+    display:block;
+
+    padding-top:56.25%;
+}
+
+
+#player-frame {
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    border:0;
+
+    background:#000;
+
+    display:block;
+}
+
+
+/* =========================================================
+   PLAYER PLACEHOLDER
+========================================================= */
+
+.player-placeholder {
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:#000;
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-box-align:center;
+
+    -webkit-align-items:center;
+
+    align-items:center;
+
+    -webkit-box-pack:center;
+
+    -webkit-justify-content:center;
+
+    justify-content:center;
+
+    color:#777;
+
+    font-size:15px;
+
+    text-align:center;
+}
+
+
+.player-placeholder-inner {
+
+    max-width:350px;
+
+    padding:20px;
+}
+
+
+.player-placeholder-play {
+
+    width:65px;
+
+    height:65px;
+
+    margin:
+        0 auto 15px;
+
+    border-radius:50%;
+
+    background:#ff0000;
+
+    color:#fff;
+
+    font-size:27px;
+
+    line-height:65px;
+
+    text-align:center;
+}
+
+
+/* =========================================================
+   VIDEO INFORMATION
+========================================================= */
+
+.video-information {
+
+    background:#181818;
+
+    padding:
+        15px 20px 12px;
+
+    border-bottom:
+        1px solid #292929;
+}
+
+
+.video-title {
+
+    font-size:20px;
+
+    line-height:27px;
+
+    color:#fff;
+
+    margin-bottom:9px;
+}
+
+
+.video-meta {
+
+    color:#aaa;
+
+    font-size:13px;
+
+    line-height:20px;
+}
+
+
+.video-actions {
+
+    margin-top:12px;
+
+    padding-top:10px;
+
+    border-top:
+        1px solid #303030;
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-flex-wrap:wrap;
+
+    flex-wrap:wrap;
+}
+
+
+.action {
+
+    background:none;
+
+    border:0;
+
+    color:#aaa;
+
+    font-size:13px;
+
+    padding:
+        7px 18px 7px 0;
+
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section {
+
+    padding:
+        0 15px 30px;
+}
+
+
+.section-title {
+
+    font-size:19px;
+
+    font-weight:bold;
+
+    padding:
+        20px 0 12px;
+}
+
+
+/* =========================================================
+   VIDEO GRID
+========================================================= */
+
+.video-grid {
+
+    display:
+        -webkit-box;
+
+    display:
+        -webkit-flex;
+
+    display:
+        flex;
+
+    -webkit-flex-wrap:wrap;
+
+    flex-wrap:wrap;
+
+    margin:
+        0 -7px;
+}
+
+
+.video-card {
+
+    width:25%;
+
+    padding:
+        7px;
+
+    cursor:pointer;
+}
+
+
+.thumbnail {
+
+    position:relative;
+
+    width:100%;
+
+    background:#222;
+
+    overflow:hidden;
+}
+
+
+.thumbnail:before {
+
+    content:"";
+
+    display:block;
+
+    padding-top:56.25%;
+}
+
+
+.thumbnail img {
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    border:0;
+}
+
+
+.duration {
+
+    position:absolute;
+
+    right:5px;
+    bottom:5px;
+
+    padding:
+        3px 5px;
+
+    background:
+        rgba(0,0,0,.85);
+
+    color:#fff;
+
+    font-size:11px;
+
+    border-radius:2px;
+}
+
+
+.video-card-title {
+
+    margin-top:7px;
+
+    font-size:14px;
+
+    line-height:19px;
+
+    color:#fff;
+
+    height:38px;
+
+    overflow:hidden;
+}
+
+
+.video-card-channel {
+
+    margin-top:5px;
+
+    color:#aaa;
+
+    font-size:12px;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+
+.video-card-views {
+
+    margin-top:4px;
+
+    color:#777;
+
+    font-size:11px;
+}
+
+
+/* =========================================================
+   CURRENT VIDEO
+========================================================= */
+
+.video-card.current {
+
+    opacity:.45;
+}
+
+
+.video-card.current .thumbnail {
+
+    border:
+        2px solid #ff0000;
+}
+
+
+/* =========================================================
+   SEARCH RESULT
+========================================================= */
+
+.search-results {
+
+    display:none;
+}
+
+
+.search-header {
+
+    font-size:19px;
+
+    font-weight:bold;
+
+    padding:
+        20px 15px 10px;
+}
+
+
+/* =========================================================
+   LOAD MORE
+========================================================= */
+
+.load-more-area {
+
+    text-align:center;
+
+    padding:
+        10px 15px 40px;
+}
+
+
+.load-more {
+
+    display:none;
+
+    background:#303030;
+
+    border:0;
+
+    color:#fff;
+
+    padding:
+        12px 30px;
+
+    font-size:14px;
+
+    border-radius:2px;
+
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading {
+
+    width:100%;
+
+    padding:30px;
+
+    text-align:center;
+
+    color:#888;
+
+    font-size:14px;
+}
+
+
+.error {
+
+    padding:30px;
+
+    color:#ff7777;
+
+    text-align:center;
+
+    line-height:22px;
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+.history-panel {
+
+    display:none;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media screen and (max-width:900px) {
+
+    .sidebar {
+
+        width:70px;
+    }
+
+    .sidebar-item {
+
+        padding:
+            0;
+
+        -webkit-box-pack:center;
+
+        -webkit-justify-content:center;
+
+        justify-content:center;
+    }
+
+    .sidebar-text {
+
+        display:none;
+    }
+
+    .sidebar-icon {
+
+        width:auto;
+
+        font-size:20px;
+    }
+
+    .video-card {
+
+        width:33.333%;
+    }
+
+    .header-right {
+
+        display:none;
+    }
+}
+
+
+/* =========================================================
+   IPAD PORTRAIT
+========================================================= */
+
+@media screen and (max-width:700px) {
+
+    .sidebar {
+
+        display:none;
+    }
+
+    .video-card {
+
+        width:50%;
+    }
+
+    .video-information {
+
+        padding:
+            13px 14px;
+    }
+
+    .video-title {
+
+        font-size:18px;
+
+        line-height:24px;
+    }
+
+    .section {
+
+        padding:
+            0 10px 25px;
+    }
+}
+
+
+/* =========================================================
+   SMALL
+========================================================= */
+
+@media screen and (max-width:450px) {
+
+    .header {
+
+        padding:
+            0 7px;
+    }
+
+    .logo {
+
+        width:70px;
+
+        font-size:16px;
+    }
+
+    .search-button {
+
+        width:45px;
+    }
+
+    .video-card {
+
+        width:100%;
+    }
+}
+
+
+/* =========================================================
+   CUSTOM FULLSCREEN
+========================================================= */
+
+body.custom-fullscreen {
+
+    background:#000;
+}
+
+
+body.custom-fullscreen .header,
+body.custom-fullscreen .sidebar,
+body.custom-fullscreen .video-information,
+body.custom-fullscreen .section,
+body.custom-fullscreen .search-results,
+body.custom-fullscreen .load-more-area {
+
+    display:none !important;
+}
+
+
+body.custom-fullscreen .main {
+
+    padding-top:0;
+}
+
+
+body.custom-fullscreen .home-layout {
+
+    display:block;
+}
+
+
+body.custom-fullscreen .content {
+
+    width:100%;
+}
+
+
+body.custom-fullscreen .player-area {
+
+    width:100vw;
+
+    height:100vh;
+}
+
+
+body.custom-fullscreen .player-container {
+
+    width:100vw;
+
+    height:100vh;
+
+    max-width:none;
+}
+
+
+body.custom-fullscreen .player-container:before {
+
+    display:none;
+}
+
+
+body.custom-fullscreen #player-frame {
+
+    width:100vw;
+
+    height:100vh;
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<div class="header">
+
+    <div class="logo">
+
+        <span class="logo-red">▶</span>
+        MyTube
+
+    </div>
+
+
+    <div class="search-area">
+
+        <input
+            id="searchInput"
+            class="search-input"
+            type="text"
+            placeholder="Tìm kiếm"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off">
+
+        <button
+            id="searchButton"
+            class="search-button">
+
+            🔍
+
+        </button>
+
+    </div>
+
+
+    <div class="header-right">
+
+        ⋮
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<div class="main">
+
+
+<div class="home-layout">
+
+
+<!-- =======================================================
+     SIDEBAR
+======================================================= -->
+
+<div class="sidebar">
+
+    <div
+        class="sidebar-item active"
+        onclick="showHome()">
+
+        <span class="sidebar-icon">
+            🏠
+        </span>
+
+        <span class="sidebar-text">
+            Trang chủ
+        </span>
+
+    </div>
+
+
+    <div
+        class="sidebar-item"
+        onclick="scrollToRecommended()">
+
+        <span class="sidebar-icon">
+            🔥
+        </span>
+
+        <span class="sidebar-text">
+            Thịnh hành
+        </span>
+
+    </div>
+
+
+    <div
+        class="sidebar-item"
+        onclick="showHistory()">
+
+        <span class="sidebar-icon">
+            🕘
+        </span>
+
+        <span class="sidebar-text">
+            Lịch sử
+        </span>
+
+    </div>
+
+
+    <div class="sidebar-line"></div>
+
+
+    <div class="sidebar-item">
+
+        <span class="sidebar-icon">
+            ℹ
+        </span>
+
+        <span class="sidebar-text">
+            MyTube
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     CONTENT
+======================================================= -->
+
+<div class="content">
+
+
+<!-- =======================================================
+     PLAYER
+======================================================= -->
+
+<div class="player-area">
+
+    <div class="player-container">
+
+        <div
+            id="playerPlaceholder"
+            class="player-placeholder">
+
+            <div class="player-placeholder-inner">
+
+                <div
+                    class="player-placeholder-play">
+
+                    ▶
+
+                </div>
+
+                Chọn một video để bắt đầu xem
+
+            </div>
+
+        </div>
+
+
+        <iframe
+            id="player-frame"
+            src=""
+            frameborder="0"
+            allowfullscreen
+            webkitallowfullscreen
+            mozallowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     VIDEO INFO
+======================================================= -->
+
+<div class="video-information">
+
+    <div
+        id="videoTitle"
+        class="video-title">
+
+        Chọn một video để bắt đầu
+
+    </div>
+
+
+    <div
+        id="videoMeta"
+        class="video-meta">
+
+    </div>
+
+
+    <div class="video-actions">
+
+        <button
+            class="action"
+            onclick="previousVideo()">
+
+            ◀ Trước
+
+        </button>
+
+
+        <button
+            class="action"
+            onclick="nextVideo()">
+
+            Tiếp theo ▶
+
+        </button>
+
+
+        <button
+            class="action"
+            onclick="toggleFullscreen()">
+
+            ⛶ Toàn màn hình
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     HOME RECOMMENDED
+======================================================= -->
+
+<div
+    id="homeSection"
+    class="section">
+
+    <div class="section-title">
+
+        Video phổ biến
+
+    </div>
+
+
+    <div
+        id="homeVideos"
+        class="video-grid">
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     VIDEO RECOMMENDATIONS
+======================================================= -->
+
+<div
+    id="recommendationSection"
+    class="section">
+
+    <div class="section-title">
+
+        Video đề xuất
+
+    </div>
+
+
+    <div
+        id="recommendedVideos"
+        class="video-grid">
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     SEARCH
+======================================================= -->
+
+<div
+    id="searchResults"
+    class="search-results">
+
+    <div
+        id="searchHeader"
+        class="search-header">
+
+        Kết quả tìm kiếm
+
+    </div>
+
+
+    <div
+        id="searchVideos"
+        class="video-grid">
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     HISTORY
+======================================================= -->
+
+<div
+    id="historyPanel"
+    class="history-panel section">
+
+    <div class="section-title">
+
+        Lịch sử xem
+
+    </div>
+
+
+    <div
+        id="historyVideos"
+        class="video-grid">
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     LOAD MORE
+======================================================= -->
+
+<div class="load-more-area">
+
+    <button
+        id="loadMoreButton"
+        class="load-more">
+
+        Tải thêm
+
+    </button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+var YOUTUBE_API_KEY =
+    "AIzaSyA7goU6tw8546IQl-EdECvKiYgxm5mQYeU";
+
+
+var MAX_RESULTS =
+    12;
+
+
+var RECOMMEND_RESULTS =
+    20;
+
+
+var REGION_CODE =
+    "VN";
+
+
+var LANGUAGE =
+    "vi";
+
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
+
+var videoList = [];
+
+var currentVideoIndex = -1;
+
+var currentVideoId = "";
+
+var currentSearch = "";
+
+var searchPageToken = "";
+
+var recommendationTimer = null;
+
+
+/* =========================================================
+   BASIC
+========================================================= */
+
+function byId(id) {
+
+    return document.getElementById(id);
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text) {
+
+    if (!text) {
+
+        return "";
+
+    }
+
+    return String(text)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   FORMAT VIEWS
+========================================================= */
+
+function formatViews(value) {
+
+    if (!value) {
+
+        return "0 lượt xem";
+
+    }
+
+
+    var number =
+        parseInt(value, 10);
+
+
+    if (number >= 1000000000) {
+
+        return (
+            number / 1000000000
+        ).toFixed(1)
+        .replace(".0", "")
+        + " tỷ lượt xem";
+
+    }
+
+
+    if (number >= 1000000) {
+
+        return (
+            number / 1000000
+        ).toFixed(1)
+        .replace(".0", "")
+        + " triệu lượt xem";
+
+    }
+
+
+    if (number >= 1000) {
+
+        return (
+            number / 1000
+        ).toFixed(1)
+        .replace(".0", "")
+        + " nghìn lượt xem";
+
+    }
+
+
+    return number +
+        " lượt xem";
+}
+
+
+/* =========================================================
+   FORMAT DURATION
+========================================================= */
+
+function formatDuration(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    var match =
+        value.match(
+            /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
+        );
+
+
+    if (!match) {
+
+        return "";
+
+    }
+
+
+    var h =
+        parseInt(
+            match[1] || 0,
+            10
+        );
+
+
+    var m =
+        parseInt(
+            match[2] || 0,
+            10
+        );
+
+
+    var s =
+        parseInt(
+            match[3] || 0,
+            10
+        );
+
+
+    var result = "";
+
+
+    if (h > 0) {
+
+        result += h + ":";
+
+
+        if (m < 10) {
+
+            result += "0";
+
+        }
+
+
+        result += m + ":";
+
+    }
+
+    else {
+
+        result += m + ":";
+
+    }
+
+
+    if (s < 10) {
+
+        result += "0";
+
+    }
+
+
+    result += s;
+
+
+    return result;
+}
+
+
+/* =========================================================
+   XHR
+   ES5 - Safari iOS 10
+========================================================= */
+
+function apiRequest(url, callback) {
+
+    var xhr =
+        new XMLHttpRequest();
+
+
+    xhr.open(
+        "GET",
+        url,
+        true
+    );
+
+
+    xhr.onreadystatechange =
+        function() {
+
+            if (
+                xhr.readyState !== 4
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                xhr.status >= 200 &&
+                xhr.status < 300
+            ) {
+
+                var data;
+
+                try {
+
+                    data =
+                        JSON.parse(
+                            xhr.responseText
+                        );
+
+                }
+
+                catch(e) {
+
+                    callback(
+                        "JSON error",
+                        null
+                    );
+
+                    return;
+
+                }
+
+
+                callback(
+                    null,
+                    data
+                );
+
+            }
+
+            else {
+
+                callback(
+                    "HTTP " +
+                    xhr.status,
+                    null
+                );
+
+            }
+
+        };
+
+
+    xhr.onerror =
+        function() {
+
+            callback(
+                "Network error",
+                null
+            );
+
+        };
+
+
+    xhr.send();
+}
+
+
+/* =========================================================
+   YOUTUBE ORIGIN
+========================================================= */
+
+function getYouTubeOrigin() {
+
+    if (
+        window.location.protocol ===
+        "http:" ||
+        window.location.protocol ===
+        "https:"
+    ) {
+
+        return (
+            window.location.protocol +
+            "//" +
+            window.location.host
+        );
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   PLAY VIDEO
+========================================================= */
+
+function playVideo(video) {
+
+    if (!video || !video.id) {
+
+        return;
+
+    }
+
+
+    currentVideoId =
+        video.id;
+
+
+    currentVideoIndex =
+        findVideoIndex(
+            video.id
+        );
+
+
+    /* ---------------------------------------------
+       Player URL
+    --------------------------------------------- */
+
+    var playerURL =
+        "https://www.youtube.com/embed/" +
+        encodeURIComponent(video.id) +
+
+        "?playsinline=1" +
+
+        "&controls=1" +
+
+        "&rel=0";
+
+
+    /*
+       Gửi origin của GitHub Pages
+       cho YouTube player.
+    */
+
+    var origin =
+        getYouTubeOrigin();
+
+
+    if (origin) {
+
+        playerURL +=
+            "&origin=" +
+            encodeURIComponent(
+                origin
+            );
+
+    }
+
+
+    /*
+       Xóa iframe cũ trước khi tạo lại.
+       Đây là cách an toàn hơn cho Safari cũ.
+    */
+
+    var oldFrame =
+        byId("player-frame");
+
+
+    oldFrame.src =
+        playerURL;
+
+
+    byId(
+        "playerPlaceholder"
+    ).style.display =
+        "none";
+
+
+    /*
+       Video title
+    */
+
+    byId(
+        "videoTitle"
+    ).innerHTML =
+        escapeHTML(
+            video.title
+        );
+
+
+    /*
+       Meta
+    */
+
+    var meta = "";
+
+
+    if (video.channel) {
+
+        meta +=
+            escapeHTML(
+                video.channel
+            );
+
+    }
+
+
+    if (video.views) {
+
+        if (meta) {
+
+            meta += " • ";
+
+        }
+
+
+        meta +=
+            formatViews(
+                video.views
+            );
+
+    }
+
+
+    byId(
+        "videoMeta"
+    ).innerHTML =
+        meta;
+
+
+    /*
+       History
+    */
+
+    saveHistory(video);
+
+
+    /*
+       Highlight
+    */
+
+    updateCurrentCard();
+
+
+    /*
+       Tải đề xuất.
+    */
+
+    loadRecommended(
+        video
+    );
+
+
+    /*
+       Trên iPad:
+       cuộn về player.
+    */
+
+    window.scrollTo(
+        0,
+        0
+    );
+}
+
+
+/* =========================================================
+   FIND VIDEO
+========================================================= */
+
+function findVideoIndex(id) {
+
+    var i;
+
+
+    for (
+        i = 0;
+        i < videoList.length;
+        i++
+    ) {
+
+        if (
+            videoList[i].id === id
+        ) {
+
+            return i;
+
+        }
+
+    }
+
+
+    return -1;
+}
+
+
+/* =========================================================
+   PREVIOUS
+========================================================= */
+
+function previousVideo() {
+
+    if (
+        videoList.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentVideoIndex <= 0
+    ) {
+
+        currentVideoIndex =
+            videoList.length - 1;
+
+    }
+
+    else {
+
+        currentVideoIndex--;
+
+    }
+
+
+    playVideo(
+        videoList[
+            currentVideoIndex
+        ]
+    );
+}
+
+
+/* =========================================================
+   NEXT
+========================================================= */
+
+function nextVideo() {
+
+    if (
+        videoList.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentVideoIndex >=
+        videoList.length - 1
+    ) {
+
+        currentVideoIndex = 0;
+
+    }
+
+    else {
+
+        currentVideoIndex++;
+
+    }
+
+
+    playVideo(
+        videoList[
+            currentVideoIndex
+        ]
+    );
+}
+
+
+/* =========================================================
+   UPDATE CURRENT
+========================================================= */
+
+function updateCurrentCard() {
+
+    var cards =
+        document.getElementsByClassName(
+            "video-card"
+        );
+
+
+    var i;
+
+
+    for (
+        i = 0;
+        i < cards.length;
+        i++
+    ) {
+
+        var id =
+            cards[i].getAttribute(
+                "data-video-id"
+            );
+
+
+        if (
+            id === currentVideoId
+        ) {
+
+            cards[i].className =
+                "video-card current";
+
+        }
+
+        else {
+
+            cards[i].className =
+                "video-card";
+
+        }
+
+    }
+}
+
+
+/* =========================================================
+   CREATE CARD
+========================================================= */
+
+function createCard(video) {
+
+    var html = "";
+
+
+    html +=
+        '<div class="video-card"';
+
+
+    html +=
+        ' data-video-id="' +
+        escapeHTML(video.id) +
+        '"';
+
+
+    html +=
+        ' onclick="openCard(this)">';
+
+
+    html +=
+        '<div class="thumbnail">';
+
+
+    html +=
+        '<img src="' +
+        escapeHTML(
+            video.thumbnail
+        ) +
+        '" alt="">';
+
+
+    if (video.duration) {
+
+        html +=
+            '<div class="duration">' +
+            escapeHTML(
+                video.duration
+            ) +
+            '</div>';
+
+    }
+
+
+    html +=
+        '</div>';
+
+
+    html +=
+        '<div class="video-card-title">' +
+        escapeHTML(
+            video.title
+        ) +
+        '</div>';
+
+
+    html +=
+        '<div class="video-card-channel">' +
+        escapeHTML(
+            video.channel
+        ) +
+        '</div>';
+
+
+    html +=
+        '<div class="video-card-views">' +
+        formatViews(
+            video.views
+        ) +
+        '</div>';
+
+
+    html +=
+        '</div>';
+
+
+    return html;
+}
+
+
+/* =========================================================
+   CARD CLICK
+========================================================= */
+
+function openCard(element) {
+
+    var id =
+        element.getAttribute(
+            "data-video-id"
+        );
+
+
+    var index =
+        findVideoIndex(id);
+
+
+    if (index < 0) {
+
+        return;
+
+    }
+
+
+    playVideo(
+        videoList[index]
+    );
+}
+
+
+/* =========================================================
+   GET VIDEO DETAILS
+========================================================= */
+
+function getVideoDetails(
+    ids,
+    callback
+) {
+
+    if (
+        !ids ||
+        ids.length === 0
+    ) {
+
+        callback([]);
+
+        return;
+
+    }
+
+
+    var url =
+        "https://www.googleapis.com/youtube/v3/videos" +
+
+        "?part=snippet,contentDetails,statistics" +
+
+        "&id=" +
+        encodeURIComponent(
+            ids.join(",")
+        ) +
+
+        "&key=" +
+        encodeURIComponent(
+            YOUTUBE_API_KEY
+        );
+
+
+    apiRequest(
+        url,
+        function(error, data) {
+
+            if (error) {
+
+                callback([]);
+
+                return;
+
+            }
+
+
+            var result = [];
+
+
+            var i;
+
+
+            for (
+                i = 0;
+                i < data.items.length;
+                i++
+            ) {
+
+                var item =
+                    data.items[i];
+
+
+                result.push({
+
+                    id:
+                        item.id,
+
+                    title:
+                        item.snippet &&
+                        item.snippet.title
+                        ?
+                        item.snippet.title
+                        :
+                        "",
+
+                    channel:
+                        item.snippet &&
+                        item.snippet.channelTitle
+                        ?
+                        item.snippet.channelTitle
+                        :
+                        "",
+
+                    categoryId:
+                        item.snippet &&
+                        item.snippet.categoryId
+                        ?
+                        item.snippet.categoryId
+                        :
+                        "",
+
+                    description:
+                        item.snippet &&
+                        item.snippet.description
+                        ?
+                        item.snippet.description
+                        :
+                        "",
+
+                    tags:
+                        item.snippet &&
+                        item.snippet.tags
+                        ?
+                        item.snippet.tags
+                        :
+                        [],
+
+                    views:
+                        item.statistics &&
+                        item.statistics.viewCount
+                        ?
+                        parseInt(
+                            item.statistics.viewCount,
+                            10
+                        )
+                        :
+                        0,
+
+                    duration:
+                        item.contentDetails
+                        ?
+                        formatDuration(
+                            item.contentDetails.duration
+                        )
+                        :
+                        "",
+
+                    thumbnail:
+                        item.snippet &&
+                        item.snippet.thumbnails &&
+                        item.snippet.thumbnails.medium
+                        ?
+                        item.snippet.thumbnails.medium.url
+                        :
+                        ""
+
+                });
+
+            }
+
+
+            callback(result);
+
+        }
+    );
+}
+
+
+/* =========================================================
+   HOME - MOST POPULAR
+========================================================= */
+
+function loadHomeVideos() {
+
+    byId(
+        "homeVideos"
+    ).innerHTML =
+        '<div class="loading">' +
+        'Đang tải video...' +
+        '</div>';
+
+
+    var url =
+        "https://www.googleapis.com/youtube/v3/videos" +
+
+        "?part=snippet,contentDetails,statistics" +
+
+        "&chart=mostPopular" +
+
+        "&regionCode=" +
+        REGION_CODE +
+
+        "&maxResults=12" +
+
+        "&key=" +
+        encodeURIComponent(
+            YOUTUBE_API_KEY
+        );
+
+
+    apiRequest(
+        url,
+        function(error, data) {
+
+            if (error) {
+
+                byId(
+                    "homeVideos"
+                ).innerHTML =
+                    '<div class="error">' +
+                    'Không thể tải video YouTube.<br>' +
+                    escapeHTML(error) +
+                    '</div>';
+
+                return;
+
+            }
+
+
+            var videos = [];
+
+
+            var i;
+
+
+            for (
+                i = 0;
+                i < data.items.length;
+                i++
+            ) {
+
+                var item =
+                    data.items[i];
+
+
+                videos.push({
+
+                    id:
+                        item.id,
+
+                    title:
+                        item.snippet.title,
+
+                    channel:
+                        item.snippet.channelTitle,
+
+                    categoryId:
+                        item.snippet.categoryId,
+
+                    views:
+                        item.statistics &&
+                        item.statistics.viewCount
+                        ?
+                        parseInt(
+                            item.statistics.viewCount,
+                            10
+                        )
+                        :
+                        0,
+
+                    duration:
+                        item.contentDetails
+                        ?
+                        formatDuration(
+                            item.contentDetails.duration
+                        )
+                        :
+                        "",
+
+                    thumbnail:
+                        item.snippet.thumbnails.medium.url
+
+                });
+
+            }
+
+
+            /*
+               Sắp xếp theo lượt xem.
+            */
+
+            videos.sort(
+                function(a, b) {
+
+                    return (
+                        b.views -
+                        a.views
+                    );
+
+                }
+            );
+
+
+            /*
+               Ghi vào danh sách chính.
+            */
+
+            videoList =
+                videos.slice(
+                    0
+                );
+
+
+            renderVideos(
+                "homeVideos",
+                videos
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   RENDER VIDEOS
+========================================================= */
+
+function renderVideos(
+    containerId,
+    videos
+) {
+
+    var container =
+        byId(containerId);
+
+
+    var html = "";
+
+
+    var i;
+
+
+    for (
+        i = 0;
+        i < videos.length;
+        i++
+    ) {
+
+        html +=
+            createCard(
+                videos[i]
+            );
+
+    }
+
+
+    container.innerHTML =
+        html;
+
+
+    updateCurrentCard();
+}
+
+
+/* =========================================================
+   RECOMMENDATION
+========================================================= */
+
+function loadRecommended(
+    currentVideo
+) {
+
+    if (
+        !currentVideo
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        recommendationTimer
+    ) {
+
+        clearTimeout(
+            recommendationTimer
+        );
+
+    }
+
+
+    byId(
+        "recommendedVideos"
+    ).innerHTML =
+        '<div class="loading">' +
+        'Đang tìm video tương tự...' +
+        '</div>';
+
+
+    /*
+       Lấy từ khóa từ:
+       - title
+       - tags
+    */
+
+    var query =
+        buildTopicQuery(
+            currentVideo
+        );
+
+
+    if (!query) {
+
+        query =
+            currentVideo.title;
+
+    }
+
+
+    searchRecommended(
+        currentVideo,
+        query
+    );
+}
+
+
+/* =========================================================
+   BUILD TOPIC
+========================================================= */
+
+function buildTopicQuery(
+    video
+) {
+
+    var words = [];
+
+
+    /*
+       Tags được ưu tiên.
+    */
+
+    if (
+        video.tags &&
+        video.tags.length
+    ) {
+
+        var i;
+
+
+        for (
+            i = 0;
+            i < video.tags.length &&
+            words.length < 5;
+            i++
+        ) {
+
+            var tag =
+                video.tags[i];
+
+
+            if (
+                tag &&
+                tag.length > 2
+            ) {
+
+                words.push(
+                    tag
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       Nếu chưa đủ,
+       lấy từ title.
+    */
+
+    if (
+        words.length < 3 &&
+        video.title
+    ) {
+
+        var titleWords =
+            video.title
+                .replace(
+                    /[^\wÀ-ỹ0-9\s]/g,
+                    " "
+                )
+                .split(
+                    /\s+/
+                );
+
+
+        var j;
+
+
+        for (
+            j = 0;
+            j < titleWords.length &&
+            words.length < 5;
+            j++
+        ) {
+
+            var word =
+                titleWords[j];
+
+
+            if (
+                word.length >= 3
+            ) {
+
+                words.push(
+                    word
+                );
+
+            }
+
+        }
+
+    }
+
+
+    return words.join(" ");
+}
+
+
+/* =========================================================
+   SEARCH RECOMMENDED
+========================================================= */
+
+function searchRecommended(
+    currentVideo,
+    query
+) {
+
+    var url =
+        "https://www.googleapis.com/youtube/v3/search" +
+
+        "?part=snippet" +
+
+        "&type=video" +
+
+        "&maxResults=" +
+        RECOMMEND_RESULTS +
+
+        "&q=" +
+        encodeURIComponent(
+            query
+        ) +
+
+        "&order=viewCount" +
+
+        "&regionCode=" +
+        REGION_CODE +
+
+        "&relevanceLanguage=" +
+        LANGUAGE +
+
+        "&videoEmbeddable=true" +
+
+        "&key=" +
+        encodeURIComponent(
+            YOUTUBE_API_KEY
+        );
+
+
+    apiRequest(
+        url,
+        function(error, data) {
+
+            if (error) {
+
+                byId(
+                    "recommendedVideos"
+                ).innerHTML =
+                    '<div class="error">' +
+                    'Không thể tải video đề xuất.' +
+                    '</div>';
+
+                return;
+
+            }
+
+
+            var ids = [];
+
+
+            var i;
+
+
+            for (
+                i = 0;
+                i < data.items.length;
+                i++
+            ) {
+
+                var item =
+                    data.items[i];
+
+
+                if (
+                    !item.id ||
+                    !item.id.videoId
+                ) {
+
+                    continue;
+
+                }
+
+
+                var id =
+                    item.id.videoId;
+
+
+                /*
+                   Không đề xuất
+                   chính video đang xem.
+                */
+
+                if (
+                    id ===
+                    currentVideo.id
+                ) {
+
+                    continue;
+
+                }
+
+
+                ids.push(id);
+
+            }
+
+
+            if (
+                ids.length === 0
+            ) {
+
+                byId(
+                    "recommendedVideos"
+                ).innerHTML =
+                    '<div class="loading">' +
+                    'Không có video đề xuất.' +
+                    '</div>';
+
+                return;
+
+            }
+
+
+            getVideoDetails(
+                ids,
+                function(videos) {
+
+                    /*
+                       Lọc video không nhúng được
+                       và video hiện tại.
+                    */
+
+                    var filtered = [];
+
+
+                    var j;
+
+
+                    for (
+                        j = 0;
+                        j < videos.length;
+                        j++
+                    ) {
+
+                        if (
+                            videos[j].id ===
+                            currentVideo.id
+                        ) {
+
+                            continue;
+
+                        }
+
+
+                        filtered.push(
+                            videos[j]
+                        );
+
+                    }
+
+
+                    /*
+                       Sắp xếp lượt xem.
+                    */
+
+                    filtered.sort(
+                        function(a, b) {
+
+                            return (
+                                b.views -
+                                a.views
+                            );
+
+                        }
+                    );
+
+
+                    /*
+                       Chỉ hiển thị 12.
+                    */
+
+                    filtered =
+                        filtered.slice(
+                            0,
+                            12
+                        );
+
+
+                    /*
+                       Không cho video đề xuất
+                       làm mất danh sách chính.
+                    */
+
+                    renderVideos(
+                        "recommendedVideos",
+                        filtered
+                    );
+
+                }
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function searchYouTube(
+    query,
+    append
+) {
+
+    if (!query) {
+
+        return;
+
+    }
+
+
+    if (!append) {
+
+        currentSearch =
+            query;
+
+        searchPageToken =
+            "";
+
+
+        showSearch();
+
+
+        byId(
+            "searchVideos"
+        ).innerHTML =
+            '<div class="loading">' +
+            'Đang tìm kiếm...' +
+            '</div>';
+
+
+        byId(
+            "searchHeader"
+        ).innerHTML =
+            'Kết quả cho: "' +
+            escapeHTML(query) +
+            '"';
+
+    }
+
+
+    var url =
+        "https://www.googleapis.com/youtube/v3/search" +
+
+        "?part=snippet" +
+
+        "&type=video" +
+
+        "&maxResults=" +
+        MAX_RESULTS +
+
+        "&q=" +
+        encodeURIComponent(
+            query
+        ) +
+
+        "&order=relevance" +
+
+        "&regionCode=" +
+        REGION_CODE +
+
+        "&relevanceLanguage=" +
+        LANGUAGE +
+
+        "&videoEmbeddable=true" +
+
+        "&key=" +
+        encodeURIComponent(
+            YOUTUBE_API_KEY
+        );
+
+
+    if (
+        append &&
+        searchPageToken
+    ) {
+
+        url +=
+            "&pageToken=" +
+            encodeURIComponent(
+                searchPageToken
+            );
+
+    }
+
+
+    apiRequest(
+        url,
+        function(error, data) {
+
+            if (error) {
+
+                byId(
+                    "searchVideos"
+                ).innerHTML =
+                    '<div class="error">' +
+                    'Lỗi tìm kiếm.<br>' +
+                    escapeHTML(error) +
+                    '</div>';
+
+                return;
+
+            }
+
+
+            searchPageToken =
+                data.nextPageToken ||
+                "";
+
+
+            var ids = [];
+
+
+            var i;
+
+
+            for (
+                i = 0;
+                i < data.items.length;
+                i++
+            ) {
+
+                if (
+                    data.items[i].id &&
+                    data.items[i].id.videoId
+                ) {
+
+                    ids.push(
+                        data.items[i].id.videoId
+                    );
+
+                }
+
+            }
+
+
+            getVideoDetails(
+                ids,
+                function(videos) {
+
+                    if (!append) {
+
+                        byId(
+                            "searchVideos"
+                        ).innerHTML =
+                            "";
+
+                    }
+
+
+                    var html = "";
+
+
+                    for (
+                        var j = 0;
+                        j < videos.length;
+                        j++
+                    ) {
+
+                        /*
+                           Bổ sung vào
+                           danh sách chính.
+                        */
+
+                        videoList.push(
+                            videos[j]
+                        );
+
+
+                        html +=
+                            createCard(
+                                videos[j]
+                            );
+
+                    }
+
+
+                    byId(
+                        "searchVideos"
+                    ).innerHTML +=
+                        html;
+
+
+                    updateCurrentCard();
+
+
+                    if (
+                        searchPageToken
+                    ) {
+
+                        byId(
+                            "loadMoreButton"
+                        ).style.display =
+                            "inline-block";
+
+                    }
+
+                    else {
+
+                        byId(
+                            "loadMoreButton"
+                        ).style.display =
+                            "none";
+
+                    }
+
+                }
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   SEARCH VIEW
+========================================================= */
+
+function showSearch() {
+
+    byId(
+        "homeSection"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "recommendationSection"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "historyPanel"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "searchResults"
+    ).style.display =
+        "block";
+}
+
+
+/* =========================================================
+   HOME VIEW
+========================================================= */
+
+function showHome() {
+
+    byId(
+        "homeSection"
+    ).style.display =
+        "block";
+
+
+    byId(
+        "recommendationSection"
+    ).style.display =
+        "block";
+
+
+    byId(
+        "historyPanel"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "searchResults"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "loadMoreButton"
+    ).style.display =
+        "none";
+
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+function saveHistory(
+    video
+) {
+
+    try {
+
+        var raw =
+            localStorage.getItem(
+                "mytube_history"
+            );
+
+
+        var history =
+            raw
+            ?
+            JSON.parse(raw)
+            :
+            [];
+
+
+        var result = [];
+
+
+        result.push(
+            video
+        );
+
+
+        var i;
+
+
+        for (
+            i = 0;
+            i < history.length;
+            i++
+        ) {
+
+            if (
+                history[i].id !==
+                video.id
+            ) {
+
+                result.push(
+                    history[i]
+                );
+
+            }
+
+
+            if (
+                result.length >= 20
+            ) {
+
+                break;
+
+            }
+
+        }
+
+
+        localStorage.setItem(
+            "mytube_history",
+            JSON.stringify(
+                result
+            )
+        );
+
+    }
+
+    catch(e) {
+
+    }
+}
+
+
+/* =========================================================
+   SHOW HISTORY
+========================================================= */
+
+function showHistory() {
+
+    showOnlyHistory();
+
+
+    var raw =
+        localStorage.getItem(
+            "mytube_history"
+        );
+
+
+    var history =
+        raw
+        ?
+        JSON.parse(raw)
+        :
+        [];
+
+
+    if (
+        history.length === 0
+    ) {
+
+        byId(
+            "historyVideos"
+        ).innerHTML =
+            '<div class="loading">' +
+            'Chưa có lịch sử xem.' +
+            '</div>';
+
+        return;
+
+    }
+
+
+    var html = "";
+
+
+    var i;
+
+
+    for (
+        i = 0;
+        i < history.length;
+        i++
+    ) {
+
+        html +=
+            createCard(
+                history[i]
+            );
+
+    }
+
+
+    byId(
+        "historyVideos"
+    ).innerHTML =
+        html;
+
+
+    /*
+       History không nhất thiết
+       nằm trong videoList.
+       Bổ sung những video còn thiếu.
+    */
+
+    for (
+        i = 0;
+        i < history.length;
+        i++
+    ) {
+
+        if (
+            findVideoIndex(
+                history[i].id
+            ) < 0
+        ) {
+
+            videoList.push(
+                history[i]
+            );
+
+        }
+
+    }
+
+
+    updateCurrentCard();
+}
+
+
+/* =========================================================
+   HISTORY VIEW
+========================================================= */
+
+function showOnlyHistory() {
+
+    byId(
+        "homeSection"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "recommendationSection"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "searchResults"
+    ).style.display =
+        "none";
+
+
+    byId(
+        "historyPanel"
+    ).style.display =
+        "block";
+
+
+    byId(
+        "loadMoreButton"
+    ).style.display =
+        "none";
+}
+
+
+/* =========================================================
+   SCROLL RECOMMENDED
+========================================================= */
+
+function scrollToRecommended() {
+
+    showHome();
+
+
+    var section =
+        byId(
+            "recommendationSection"
+        );
+
+
+    if (
+        section
+    ) {
+
+        window.scrollTo(
+            0,
+            section.offsetTop - 60
+        );
+
+    }
+}
+
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+function toggleFullscreen() {
+
+    if (
+        document.body.className
+            .indexOf(
+                "custom-fullscreen"
+            ) >= 0
+    ) {
+
+        document.body.className =
+            document.body.className.replace(
+                "custom-fullscreen",
+                ""
+            );
+
+    }
+
+    else {
+
+        document.body.className +=
+            " custom-fullscreen";
+
+    }
+}
+
+
+/* =========================================================
+   SEARCH EVENTS
+========================================================= */
+
+byId(
+    "searchButton"
+).onclick =
+    function() {
+
+        doSearch();
+
+    };
+
+
+byId(
+    "searchInput"
+).onkeydown =
+    function(event) {
+
+        event =
+            event ||
+            window.event;
+
+
+        if (
+            event.keyCode === 13
+        ) {
+
+            doSearch();
+
+        }
+
+    };
+
+
+function doSearch() {
+
+    var query =
+        byId(
+            "searchInput"
+        ).value;
+
+
+    query =
+        query.replace(
+            /^\s+|\s+$/g,
+            ""
+        );
+
+
+    if (!query) {
+
+        return;
+
+    }
+
+
+    searchYouTube(
+        query,
+        false
+    );
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+}
+
+
+/* =========================================================
+   LOAD MORE
+========================================================= */
+
+byId(
+    "loadMoreButton"
+).onclick =
+    function() {
+
+        searchYouTube(
+            currentSearch,
+            true
+        );
+
+    };
+
+
+/* =========================================================
+   TOUCH SWIPE
+========================================================= */
+
+var touchStartX = 0;
+
+var touchStartY = 0;
+
+
+document.addEventListener(
+    "touchstart",
+    function(event) {
+
+        if (
+            !event.touches ||
+            !event.touches.length
+        ) {
+
+            return;
+
+        }
+
+
+        touchStartX =
+            event.touches[0].clientX;
+
+
+        touchStartY =
+            event.touches[0].clientY;
+
+    },
+    false
+);
+
+
+document.addEventListener(
+    "touchend",
+    function(event) {
+
+        if (
+            !event.changedTouches ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        var x =
+            event.changedTouches[0].clientX;
+
+
+        var y =
+            event.changedTouches[0].clientY;
+
+
+        var dx =
+            x - touchStartX;
+
+
+        var dy =
+            y - touchStartY;
+
+
+        /*
+           Swipe ngang > 100px
+        */
+
+        if (
+            Math.abs(dx) > 100 &&
+            Math.abs(dx) >
+            Math.abs(dy)
+        ) {
+
+            if (dx > 0) {
+
+                previousVideo();
+
+            }
+
+            else {
+
+                nextVideo();
+
+            }
+
+        }
+
+    },
+    false
+);
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.onkeydown =
+    function(event) {
+
+        event =
+            event ||
+            window.event;
+
+
+        if (
+            event.keyCode === 37
+        ) {
+
+            previousVideo();
+
+        }
+
+
+        if (
+            event.keyCode === 39
+        ) {
+
+            nextVideo();
+
+        }
+
+    };
+
+
+/* =========================================================
+   START
+========================================================= */
+
+function startMyTube() {
+
+    if (
+        !YOUTUBE_API_KEY ||
+        YOUTUBE_API_KEY ===
+        "YOUR_YOUTUBE_API_KEY"
+    ) {
+
+        byId(
+            "homeVideos"
+        ).innerHTML =
+            '<div class="error">' +
+            'Bạn chưa nhập YouTube API Key.' +
+            '</div>';
+
+        return;
+
+    }
+
+
+    /*
+       Chạy trang chủ.
+    */
+
+    loadHomeVideos();
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+startMyTube();
+
+</script>
+
+</body>
+</html>
