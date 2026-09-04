@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="YouTube iPad">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>YouTube cho iPad 4 (iOS 10)</title>
+
+    <!-- Icon YouTube khi Thêm vào Màn hình chính (iOS Safari Apple Touch Icon) -->
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180' width='180' height='180'><rect width='180' height='180' rx='40' fill='%23ff0000'/><polygon points='72,52 126,90 72,128' fill='%23ffffff'/></svg>">
+    <link rel="apple-touch-icon-precomposed"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180' width='180' height='180'><rect width='180' height='180' rx='40' fill='%23ff0000'/><polygon points='72,52 126,90 72,128' fill='%23ffffff'/></svg>">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180' width='180' height='180'><rect width='180' height='180' rx='40' fill='%23ff0000'/><polygon points='72,52 126,90 72,128' fill='%23ffffff'/></svg>">
+
+    <style>
+        /* ========================================================
+       CSS RESET & TƯƠNG THÍCH WEBKIT TRÊN IOS 10.3.4 SAFARI
+       ======================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #f1f1f1;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        input,
+        button,
+        textarea {
+            font-family: inherit;
+            user-select: auto;
+            -webkit-user-select: auto;
+        }
+
+        /* ========================================================
+       HEADER
+       ======================================================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background-color: #0f0f0f;
+            border-bottom: 1px solid #272727;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .brand {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .yt-icon-logo {
+            width: 32px;
+            height: 22px;
+            background-color: #ff0000;
+            border-radius: 6px;
+            position: relative;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            margin-right: 6px;
+        }
+
+        .yt-icon-logo::after {
+            content: "";
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 9px solid #ffffff;
+            margin-left: 2px;
+        }
+
+        .brand-title {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+        }
+
+        .brand-badge {
+            font-size: 10px;
+            background-color: #272727;
+            color: #aaa;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-flex: 1;
+            flex: 1;
+            max-width: 540px;
+            margin: 0 16px;
+        }
+
+        .search-box {
+            display: -webkit-flex;
+            display: flex;
+            width: 100%;
+            height: 38px;
+            background-color: #121212;
+            border: 1px solid #303030;
+            border-radius: 20px 0 0 20px;
+            padding: 0 14px;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .search-box input::placeholder {
+            color: #888;
+        }
+
+        .search-btn {
+            width: 60px;
+            height: 38px;
+            background-color: #222222;
+            border: 1px solid #303030;
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .search-btn:active {
+            background-color: #333;
+        }
+
+        /* HEADER ACTIONS */
+        .header-actions {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #f1f1f1;
+            padding: 8px 12px;
+            border-radius: 18px;
+            cursor: pointer;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: #272727;
+            margin-left: 8px;
+        }
+
+        .btn-icon:active {
+            background-color: #3f3f3f;
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            fill: currentColor;
+        }
+
+        .btn-icon.active-key {
+            background-color: #065fd4;
+            color: #fff;
+        }
+
+        /* ========================================================
+       CHIPS / CATEGORY BAR
+       ======================================================== */
+        .chips-bar {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background-color: #0f0f0f;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 0 16px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 1px solid #202020;
+            z-index: 90;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chips-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 6px 14px;
+            margin-right: 8px;
+            border-radius: 8px;
+            background-color: #272727;
+            color: #f1f1f1;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .chip.active {
+            background-color: #ffffff;
+            color: #0f0f0f;
+        }
+
+        /* ========================================================
+       MAIN CONTENT CONTAINER
+       ======================================================== */
+        .main-container {
+            margin-top: 104px;
+            padding: 16px;
+            min-height: calc(100vh - 104px);
+        }
+
+        /* API KEY NOTIFICATION BANNER */
+        .alert-banner {
+            background: -webkit-linear-gradient(left, #1f2937, #111827);
+            background: linear-gradient(to right, #1f2937, #111827);
+            border: 1px solid #374151;
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .alert-banner.warning {
+            border-left-color: #ef4444;
+            background: #201314;
+        }
+
+        .alert-text h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .alert-text p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .alert-btn {
+            padding: 8px 16px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            margin-left: 14px;
+        }
+
+        /* DIRECT URL PLAYER BOX (Phát nhanh ko cần API) */
+        .quick-player-bar {
+            background-color: #1a1a1a;
+            border: 1px solid #2d2d2d;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .quick-player-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #aaa;
+            margin-right: 12px;
+            margin-bottom: 4px;
+        }
+
+        .quick-player-input-wrap {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .quick-player-input-wrap input {
+            -webkit-flex: 1;
+            flex: 1;
+            height: 34px;
+            background-color: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 6px 0 0 6px;
+            padding: 0 10px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .quick-player-input-wrap button {
+            height: 34px;
+            padding: 0 14px;
+            background-color: #cc0000;
+            color: #fff;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* ========================================================
+       VIDEO GRID (Dùng Flexbox thuần thay vì Grid để iPad 4 ko lỗi)
+       ======================================================== */
+        .video-grid {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin: 0 -8px;
+        }
+
+        .video-card-col {
+            width: 33.333%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        /* Portrait iPad 768px */
+        @media (max-width: 900px) {
+            .video-card-col {
+                width: 50%;
+            }
+        }
+
+        /* Small screens / Phones */
+        @media (max-width: 600px) {
+            .video-card-col {
+                width: 100%;
+            }
+        }
+
+        .video-card {
+            background-color: transparent;
+            cursor: pointer;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: background-color 0.15s;
+        }
+
+        .video-card:active {
+            background-color: #1f1f1f;
+        }
+
+        .thumbnail-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .thumbnail-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background-color: #202020;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .video-details {
+            padding: 10px 4px 12px 4px;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .channel-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #272727;
+            margin-right: 12px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            color: #888;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .video-info {
+            -webkit-flex: 1;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .video-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #f1f1f1;
+            margin-bottom: 4px;
+            max-height: 38px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+        }
+
+        .channel-name {
+            font-size: 12.5px;
+            color: #aaaaaa;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: #888888;
+        }
+
+        /* LOAD MORE BUTTON */
+        .load-more-wrap {
+            text-align: center;
+            padding: 30px 0 50px 0;
+        }
+
+        .btn-load-more {
+            background-color: #272727;
+            border: 1px solid #3f3f3f;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-load-more:active {
+            background-color: #383838;
+        }
+
+        /* ========================================================
+       WATCH VIEW (TRÌNH PHÁT VIDEO CHUYÊN BIỆT CHO IPAD 4)
+       ======================================================== */
+        .watch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #0f0f0f;
+            z-index: 200;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: none;
+        }
+
+        .watch-overlay.open {
+            display: block;
+        }
+
+        .watch-header-bar {
+            height: 50px;
+            background-color: #181818;
+            border-bottom: 1px solid #282828;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #272727;
+        }
+
+        .btn-back svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            fill: currentColor;
+        }
+
+        .watch-layout {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+        }
+
+        .watch-main {
+            -webkit-flex: 1 1 65%;
+            flex: 1 1 65%;
+            min-width: 320px;
+            padding-right: 16px;
+        }
+
+        .watch-sidebar {
+            -webkit-flex: 1 1 30%;
+            flex: 1 1 30%;
+            min-width: 300px;
+        }
+
+        @media (max-width: 880px) {
+            .watch-main {
+                padding-right: 0;
+                width: 100%;
+                -webkit-flex: 1 1 100%;
+                flex: 1 1 100%;
+            }
+
+            .watch-sidebar {
+                width: 100%;
+                -webkit-flex: 1 1 100%;
+                flex: 1 1 100%;
+                margin-top: 24px;
+            }
+        }
+
+        /* PLAYER KHUNG CHUẨN TƯƠNG THÍCH IOS SAFARI */
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 */
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .watch-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            line-height: 1.35;
+            color: #fff;
+        }
+
+        .watch-channel-bar {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #272727;
+            flex-wrap: wrap;
+        }
+
+        .watch-channel-info {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-right: 12px;
+        }
+
+        .watch-channel-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .watch-actions {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .watch-btn {
+            background-color: #272727;
+            border: none;
+            color: #f1f1f1;
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .watch-btn svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            fill: currentColor;
+        }
+
+        .watch-description-box {
+            background-color: #222222;
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 14px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #ddd;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .watch-description-meta {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        /* RELATED VIDEOS LIST */
+        .related-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .related-card {
+            display: -webkit-flex;
+            display: flex;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .related-card:active {
+            background-color: #1f1f1f;
+        }
+
+        .related-thumb {
+            width: 140px;
+            height: 79px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #202020;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .related-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .related-info {
+            padding-left: 10px;
+            -webkit-flex: 1;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .related-video-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.3;
+            max-height: 34px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .related-channel {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        /* ========================================================
+       MODAL CẤU HÌNH API KEY
+       ======================================================== */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 300;
+            display: none;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.open {
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .modal-card {
+            background-color: #212121;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 480px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+        }
+
+        .modal-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .modal-card p {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .modal-input {
+            width: 100%;
+            height: 42px;
+            background-color: #121212;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 0 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-input:focus {
+            border-color: #3ea6ff;
+            outline: none;
+        }
+
+        .modal-actions {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: flex-end;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .modal-btn-cancel {
+            background-color: transparent;
+            color: #aaa;
+        }
+
+        .modal-btn-save {
+            background-color: #065fd4;
+            color: #fff;
+        }
+
+        /* LOADING SPINNER */
+        .spinner {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #ff0000;
+            -webkit-animation: spin 0.8s linear infinite;
+            animation: spin 0.8s linear infinite;
+            margin: 30px auto;
+        }
+
+        @-webkit-keyframes spin {
+            to {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .center-text {
+            text-align: center;
+            padding: 40px 16px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========================================================
+       TOP HEADER
+       ======================================================== -->
+    <header class="header">
+        <div class="brand" onclick="goHome()">
+            <div class="yt-icon-logo"></div>
+            <span class="brand-title">YouTube</span>
+            <span class="brand-badge">iPad 4</span>
+        </div>
+
+        <form class="search-container" id="search-form" onsubmit="handleSearch(event)">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Tìm kiếm trên YouTube..." autocomplete="off">
+            </div>
+            <button type="submit" class="search-btn" title="Tìm kiếm">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path
+                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+            </button>
+        </form>
+
+        <div class="header-actions">
+            <button class="btn-icon" id="btn-api-key" onclick="openApiModal()">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+                </svg>
+                <span id="api-key-label">Cài API Key</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ========================================================
+       CHIPS FILTER (DANH MỤC)
+       ======================================================== -->
+    <div class="chips-bar" id="chips-bar">
+        <button class="chip active" onclick="selectCategory('', this)">Tất cả (Thịnh hành)</button>
+        <button class="chip" onclick="selectCategory('Âm nhạc', this)">Âm nhạc</button>
+        <button class="chip" onclick="selectCategory('Trò chơi', this)">Trò chơi</button>
+        <button class="chip" onclick="selectCategory('Tin tức', this)">Tin tức</button>
+        <button class="chip" onclick="selectCategory('Hoạt hình', this)">Hoạt hình</button>
+        <button class="chip" onclick="selectCategory('Hài kịch', this)">Hài hước</button>
+        <button class="chip" onclick="selectCategory('Công nghệ', this)">Công nghệ</button>
+        <button class="chip" onclick="selectCategory('Nấu ăn', this)">Ẩm thực</button>
+        <button class="chip" onclick="selectCategory('Du lịch', this)">Du lịch</button>
+    </div>
+
+    <!-- ========================================================
+       MAIN CONTAINER
+       ======================================================== -->
+    <main class="main-container">
+
+        <!-- THÔNG BÁO CHƯA CÀI API KEY -->
+        <div class="alert-banner warning" id="banner-no-key" style="display: none;">
+            <div class="alert-text">
+                <h4>Chưa có YouTube Data API v3 Key</h4>
+                <p>Để tìm kiếm và xem video mới nhất, hãy cài đặt API Key (miễn phí từ Google Cloud Console). Bạn cũng
+                    có thể dán link video vào ô bên dưới để phát ngay.</p>
+            </div>
+            <button class="alert-btn" onclick="openApiModal()">Nhập Key Ngay</button>
+        </div>
+
+        <!-- THANH PHÁT NHANH BẰNG LINK HOẶC ID (KHÔNG TỐN QUOTA API) -->
+        <div class="quick-player-bar">
+            <span class="quick-player-title">⚡ Phát nhanh bằng Link / Video ID (Không tốn lượt API):</span>
+            <div class="quick-player-input-wrap">
+                <input type="text" id="quick-url-input"
+                    placeholder="Dán link youtube (https://youtu.be/... hoặc mã ID dQw4w9WgXcQ)">
+                <button type="button" onclick="playFromDirectInput()">Phát video</button>
+            </div>
+        </div>
+
+        <!-- KHU VỰC HIỂN THỊ VIDEO GRID -->
+        <div id="video-grid" class="video-grid">
+            <!-- Video card items will be injected here -->
+        </div>
+
+        <!-- SPINNER & LOAD MORE -->
+        <div id="loading-spinner" class="center-text" style="display: none;">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px;">Đang tải danh sách video...</p>
+        </div>
+
+        <div class="load-more-wrap" id="load-more-wrap" style="display: none;">
+            <button class="btn-load-more" onclick="loadMoreVideos()">Tải thêm video</button>
+        </div>
+
+    </main>
+
+    <!-- ========================================================
+       WATCH VIEW (TRÌNH PHÁT VIDEO CHUYÊN BIỆT CHO IPAD)
+       ======================================================== -->
+    <div class="watch-overlay" id="watch-overlay">
+        <div class="watch-header-bar">
+            <button class="btn-back" onclick="closeWatchView()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                <span>Quay lại</span>
+            </button>
+            <div style="margin-left: 16px; font-size: 13px; color: #888;" id="watch-header-title">Đang phát video</div>
+        </div>
+
+        <div class="watch-layout">
+            <!-- KHUNG VIDEO CHÍNH -->
+            <div class="watch-main">
+                <div class="player-container" id="player-container">
+                    <!-- Iframe sẽ được gắn động khi click để thỏa mãn User-Gesture trên Safari iOS 10 -->
+                </div>
+
+                <h1 class="watch-title" id="watch-video-title">Tiêu đề video</h1>
+
+                <div class="watch-channel-bar">
+                    <div class="watch-channel-info">
+                        <div class="channel-avatar" id="watch-channel-avatar">YT</div>
+                        <div>
+                            <div class="watch-channel-name" id="watch-channel-title">Tên kênh</div>
+                            <div style="font-size: 12px; color: #888;" id="watch-published-at">Ngày đăng</div>
+                        </div>
+                    </div>
+
+                    <div class="watch-actions">
+                        <button class="watch-btn" onclick="copyCurrentVideoUrl()">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            <span>Sao chép Link</span>
+                        </button>
+                        <button class="watch-btn" onclick="openInExternalSafari()">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                            </svg>
+                            <span>Mở ngoài</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="watch-description-box" id="watch-description-box">
+                    <div class="watch-description-meta" id="watch-desc-meta">Thông tin video</div>
+                    <div id="watch-description-content">Mô tả video sẽ hiển thị tại đây...</div>
+                </div>
+            </div>
+
+            <!-- VIDEO LIÊN QUAN / ĐỀ XUẤT -->
+            <div class="watch-sidebar">
+                <h3 class="related-title">Video liên quan</h3>
+                <div id="related-videos-list">
+                    <!-- Related list injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+       MODAL NHẬP API KEY
+       ======================================================== -->
+    <div class="modal-backdrop" id="modal-api">
+        <div class="modal-card">
+            <h3>Cài đặt YouTube Data API v3</h3>
+            <p>Nhập khóa API từ Google Cloud Console của bạn. Khóa sẽ được lưu an toàn trong bộ nhớ máy iPad
+                (localStorage) để dùng vĩnh viễn.</p>
+
+            <input type="text" class="modal-input" id="api-key-input" placeholder="Dán khóa API (AIzaSy...)"
+                spellcheck="false" autocomplete="off">
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeApiModal()">Đóng</button>
+                <button type="button" class="modal-btn modal-btn-save" onclick="saveApiKey()">Lưu khóa API</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+       JAVASCRIPT THUẦN TƯƠNG THÍCH HOÀN TOÀN VỚI IOS 10.3.4 SAFARI
+       (Không dùng cú pháp ?. ?? async/await hoặc spread object)
+       ======================================================== -->
+    <script>
+        // State application
+        var state = {
+            apiKey: '',
+            currentQuery: '',
+            currentCategory: '',
+            nextPageToken: '',
+            isLoading: false,
+            currentVideoId: '',
+            videos: []
+        };
+
+        // Video mẫu dự phòng khi chưa có API Key
+        var DEMO_VIDEOS = [
+            {
+                id: "jfKfPfyJRdk",
+                title: "lofi hip hop radio 📚 - beats to relax/study to",
+                channelTitle: "Lofi Girl",
+                thumbnail: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
+                publishedAt: "2023-01-01",
+                description: "Chào mừng bạn đến với kênh radio Lofi trực tuyến. Thích hợp nghe khi học bài, làm việc trên iPad 4."
+            },
+            {
+                id: "5qap5aO4i9A",
+                title: "lofi hip hop radio 💤 - beats to sleep/chill to",
+                channelTitle: "Lofi Girl",
+                thumbnail: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg",
+                publishedAt: "2023-01-01",
+                description: "Những bản nhạc êm dịu giúp dễ ngủ, thư giãn đầu óc."
+            },
+            {
+                id: "kJQP7kiw5Fk",
+                title: "Luis Fonsi - Despacito ft. Daddy Yankee",
+                channelTitle: "Luis Fonsi",
+                thumbnail: "https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg",
+                publishedAt: "2017-01-13",
+                description: "Despacito - ca khúc đạt kỷ lục lượt xem toàn cầu trên YouTube."
+            },
+            {
+                id: "JGwWNGJdvx8",
+                title: "Ed Sheeran - Shape of You (Official Music Video)",
+                channelTitle: "Ed Sheeran",
+                thumbnail: "https://i.ytimg.com/vi/JGwWNGJdvx8/hqdefault.jpg",
+                publishedAt: "2017-01-30",
+                description: "Official music video for Ed Sheeran - Shape of You."
+            },
+            {
+                id: "9bZkp7q19f0",
+                title: "PSY - GANGNAM STYLE(강남스타일) M/V",
+                channelTitle: "officialpsy",
+                thumbnail: "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
+                publishedAt: "2012-07-15",
+                description: "Video âm nhạc huyền thoại Gangnam Style."
+            },
+            {
+                id: "fJ9rUzIMcZQ",
+                title: "Queen – Bohemian Rhapsody (Official Video Remastered)",
+                channelTitle: "Queen Official",
+                thumbnail: "https://i.ytimg.com/vi/fJ9rUzIMcZQ/hqdefault.jpg",
+                publishedAt: "2008-08-01",
+                description: "The official Bohemian Rhapsody music video."
+            }
+        ];
+
+        // ========================================================
+        // TIỆN ÍCH HTTP XHR AN TOÀN TRÊN SAFARI 10
+        // ========================================================
+        function apiRequest(url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            var json = JSON.parse(xhr.responseText);
+                            callback(null, json);
+                        } catch (err) {
+                            callback(new Error('Lỗi giải mã JSON từ máy chủ'), null);
+                        }
+                    } else {
+                        var errMsg = 'HTTP Lỗi: ' + xhr.status;
+                        try {
+                            var errObj = JSON.parse(xhr.responseText);
+                            if (errObj.error && errObj.error.message) {
+                                errMsg = errObj.error.message;
+                            }
+                        } catch (e) { }
+                        callback(new Error(errMsg), null);
+                    }
+                }
+            };
+            xhr.onerror = function () {
+                callback(new Error('Lỗi kết nối mạng, vui lòng kiểm tra Wifi của iPad'), null);
+            };
+            xhr.send();
+        }
+
+        // Trích xuất Video ID từ đường link YouTube bất kỳ
+        function extractVideoId(input) {
+            if (!input) return '';
+            input = input.trim();
+            if (input.length === 11 && input.indexOf('/') === -1 && input.indexOf('?') === -1) {
+                return input;
+            }
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = input.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : input;
+        }
+
+        // Format ngày tháng an toàn
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr);
+                return d.toLocaleDateString('vi-VN');
+            } catch (e) {
+                return dateStr.substring(0, 10);
+            }
+        }
+
+        // Escape HTML để tránh XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ========================================================
+        // KHỞI ĐỘNG ỨNG DỤNG
+        // ========================================================
+        function init() {
+            // Đọc API Key từ localStorage
+            var savedKey = localStorage.getItem('yt_api_key');
+            if (savedKey) {
+                state.apiKey = savedKey.trim();
+                updateApiKeyUI();
+                loadPopularVideos();
+            } else {
+                updateApiKeyUI();
+                showDemoVideos();
+            }
+
+            // Xử lý nút quay lại phần cứng / history của iPad
+            window.onpopstate = function (event) {
+                if (state.currentVideoId) {
+                    closeWatchView(false);
+                }
+            };
+        }
+
+        function updateApiKeyUI() {
+            var btn = document.getElementById('btn-api-key');
+            var label = document.getElementById('api-key-label');
+            var banner = document.getElementById('banner-no-key');
+
+            if (state.apiKey) {
+                btn.className = 'btn-icon active-key';
+                label.innerText = 'Key: ' + state.apiKey.substring(0, 4) + '...';
+                banner.style.display = 'none';
+            } else {
+                btn.className = 'btn-icon';
+                label.innerText = 'Cài API Key';
+                banner.style.display = 'flex';
+            }
+        }
+
+        function goHome() {
+            document.getElementById('search-input').value = '';
+            state.currentQuery = '';
+            state.currentCategory = '';
+            resetChipActive();
+            if (state.currentVideoId) {
+                closeWatchView();
+            }
+            if (state.apiKey) {
+                loadPopularVideos();
+            } else {
+                showDemoVideos();
+            }
+        }
+
+        // ========================================================
+        // TẢI VIDEO TỪ YOUTUBE DATA API V3
+        // ========================================================
+        function loadPopularVideos() {
+            if (!state.apiKey) {
+                showDemoVideos();
+                return;
+            }
+
+            setLoading(true);
+            state.nextPageToken = '';
+
+            var url = 'https://www.googleapis.com/youtube/v3/videos?' +
+                'part=snippet,contentDetails,statistics' +
+                '&chart=mostPopular' +
+                '&regionCode=VN' +
+                '&maxResults=24' +
+                '&key=' + encodeURIComponent(state.apiKey);
+
+            apiRequest(url, function (err, data) {
+                setLoading(false);
+                if (err) {
+                    alert('Lỗi nạp video: ' + err.message);
+                    showDemoVideos();
+                    return;
+                }
+
+                if (data && data.items) {
+                    state.nextPageToken = data.nextPageToken || '';
+                    state.videos = data.items.map(function (item) {
+                        var snippet = item.snippet || {};
+                        var thumbs = snippet.thumbnails || {};
+                        var thumbUrl = (thumbs.high && thumbs.high.url) ||
+                            (thumbs.medium && thumbs.medium.url) ||
+                            (thumbs.default && thumbs.default.url) || '';
+                        return {
+                            id: item.id,
+                            title: snippet.title || 'Không có tiêu đề',
+                            channelTitle: snippet.channelTitle || '',
+                            thumbnail: thumbUrl,
+                            publishedAt: snippet.publishedAt || '',
+                            description: snippet.description || ''
+                        };
+                    });
+
+                    renderVideoGrid(state.videos, false);
+                    toggleLoadMore(!!state.nextPageToken);
+                }
+            });
+        }
+
+        function handleSearch(event) {
+            if (event) event.preventDefault();
+            var input = document.getElementById('search-input');
+            var q = input.value.trim();
+            if (!q) return;
+
+            // Kiểm tra nếu người dùng dán link video vào ô tìm kiếm
+            if (q.indexOf('youtube.com') !== -1 || q.indexOf('youtu.be') !== -1) {
+                var vid = extractVideoId(q);
+                if (vid) {
+                    openVideo(vid, 'Đang phát video từ liên kết...', 'YouTube', '', '');
+                    return;
+                }
+            }
+
+            state.currentQuery = q;
+            state.currentCategory = '';
+            resetChipActive();
+
+            if (!state.apiKey) {
+                openApiModal();
+                return;
+            }
+
+            searchVideos(q);
+        }
+
+        function searchVideos(query, pageToken) {
+            setLoading(true);
+            if (!pageToken) {
+                state.nextPageToken = '';
+            }
+
+            var url = 'https://www.googleapis.com/youtube/v3/search?' +
+                'part=snippet' +
+                '&type=video' +
+                '&maxResults=24' +
+                '&q=' + encodeURIComponent(query) +
+                (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '') +
+                '&key=' + encodeURIComponent(state.apiKey);
+
+            apiRequest(url, function (err, data) {
+                setLoading(false);
+                if (err) {
+                    alert('Lỗi tìm kiếm: ' + err.message);
+                    return;
+                }
+
+                if (data && data.items) {
+                    state.nextPageToken = data.nextPageToken || '';
+                    var newVideos = data.items.map(function (item) {
+                        var id = item.id ? item.id.videoId : '';
+                        var snippet = item.snippet || {};
+                        var thumbs = snippet.thumbnails || {};
+                        var thumbUrl = (thumbs.high && thumbs.high.url) ||
+                            (thumbs.medium && thumbs.medium.url) ||
+                            (thumbs.default && thumbs.default.url) || '';
+                        return {
+                            id: id,
+                            title: snippet.title || 'Không có tiêu đề',
+                            channelTitle: snippet.channelTitle || '',
+                            thumbnail: thumbUrl,
+                            publishedAt: snippet.publishedAt || '',
+                            description: snippet.description || ''
+                        };
+                    }).filter(function (v) { return !!v.id; });
+
+                    if (pageToken) {
+                        state.videos = state.videos.concat(newVideos);
+                        renderVideoGrid(newVideos, true);
+                    } else {
+                        state.videos = newVideos;
+                        renderVideoGrid(newVideos, false);
+                    }
+
+                    toggleLoadMore(!!state.nextPageToken);
+                }
+            });
+        }
+
+        function loadMoreVideos() {
+            if (!state.nextPageToken || state.isLoading) return;
+            if (state.currentQuery) {
+                searchVideos(state.currentQuery, state.nextPageToken);
+            } else if (state.currentCategory) {
+                searchVideos(state.currentCategory, state.nextPageToken);
+            } else {
+                // Tải thêm trang chủ
+                setLoading(true);
+                var url = 'https://www.googleapis.com/youtube/v3/videos?' +
+                    'part=snippet,contentDetails,statistics' +
+                    '&chart=mostPopular' +
+                    '&regionCode=VN' +
+                    '&maxResults=24' +
+                    '&pageToken=' + encodeURIComponent(state.nextPageToken) +
+                    '&key=' + encodeURIComponent(state.apiKey);
+
+                apiRequest(url, function (err, data) {
+                    setLoading(false);
+                    if (!err && data && data.items) {
+                        state.nextPageToken = data.nextPageToken || '';
+                        var more = data.items.map(function (item) {
+                            var snippet = item.snippet || {};
+                            var thumbs = snippet.thumbnails || {};
+                            return {
+                                id: item.id,
+                                title: snippet.title || '',
+                                channelTitle: snippet.channelTitle || '',
+                                thumbnail: (thumbs.high && thumbs.high.url) || (thumbs.medium && thumbs.medium.url) || '',
+                                publishedAt: snippet.publishedAt || '',
+                                description: snippet.description || ''
+                            };
+                        });
+                        state.videos = state.videos.concat(more);
+                        renderVideoGrid(more, true);
+                        toggleLoadMore(!!state.nextPageToken);
+                    }
+                });
+            }
+        }
+
+        function selectCategory(categoryName, btnElem) {
+            resetChipActive();
+            if (btnElem) btnElem.className = 'chip active';
+
+            state.currentCategory = categoryName;
+            state.currentQuery = '';
+            document.getElementById('search-input').value = '';
+
+            if (!categoryName) {
+                if (state.apiKey) loadPopularVideos();
+                else showDemoVideos();
+            } else {
+                if (state.apiKey) {
+                    searchVideos(categoryName);
+                } else {
+                    alert('Vui lòng cài đặt API Key để xem video thuộc danh mục "' + categoryName + '"');
+                }
+            }
+        }
+
+        function resetChipActive() {
+            var chips = document.getElementById('chips-bar').getElementsByClassName('chip');
+            for (var i = 0; i < chips.length; i++) {
+                chips[i].className = 'chip';
+            }
+        }
+
+        // Hiển thị danh sách demo khi chưa có key
+        function showDemoVideos() {
+            state.videos = DEMO_VIDEOS;
+            renderVideoGrid(DEMO_VIDEOS, false);
+            toggleLoadMore(false);
+        }
+
+        // ========================================================
+        // RENDER VIDEO RA GIAO DIỆN
+        // ========================================================
+        function renderVideoGrid(videoList, isAppend) {
+            var grid = document.getElementById('video-grid');
+            if (!isAppend) {
+                grid.innerHTML = '';
+            }
+
+            if (!videoList || videoList.length === 0) {
+                if (!isAppend) {
+                    grid.innerHTML = '<div class="center-text" style="width:100%;">Không tìm thấy video nào.</div>';
+                }
+                return;
+            }
+
+            var fragment = document.createDocumentFragment();
+
+            for (var i = 0; i < videoList.length; i++) {
+                var v = videoList[i];
+                var col = document.createElement('div');
+                col.className = 'video-card-col';
+
+                var initial = (v.channelTitle && v.channelTitle.length > 0) ? v.channelTitle.charAt(0).toUpperCase() : 'Y';
+
+                col.innerHTML =
+                    '<div class="video-card" onclick="openVideo(\'' + escapeHtml(v.id) + '\', \'' + escapeHtml(v.title) + '\', \'' + escapeHtml(v.channelTitle) + '\', \'' + escapeHtml(v.publishedAt) + '\', \'' + escapeHtml(v.description) + '\')">' +
+                    '<div class="thumbnail-wrapper">' +
+                    '<img src="' + escapeHtml(v.thumbnail) + '" alt="' + escapeHtml(v.title) + '" loading="lazy" onerror="this.src=\'https://via.placeholder.com/640x360/202020/ffffff?text=Video+YouTube\'">' +
+                    '</div>' +
+                    '<div class="video-details">' +
+                    '<div class="channel-avatar">' + escapeHtml(initial) + '</div>' +
+                    '<div class="video-info">' +
+                    '<div class="video-title">' + escapeHtml(v.title) + '</div>' +
+                    '<div class="channel-name">' + escapeHtml(v.channelTitle) + '</div>' +
+                    '<div class="video-meta">' + formatDate(v.publishedAt) + '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                fragment.appendChild(col);
+            }
+
+            grid.appendChild(fragment);
+        }
+
+        // ========================================================
+        // PHÁT VIDEO CHUYÊN BIỆT CHO IPAD 4
+        // (Playsinline, user gesture tap, no lag iframe)
+        // ========================================================
+        function openVideo(videoId, title, channelTitle, publishedAt, description) {
+            if (!videoId) return;
+
+            state.currentVideoId = videoId;
+
+            // Cập nhật thông tin giao diện
+            document.getElementById('watch-header-title').innerText = title || 'Đang phát video';
+            document.getElementById('watch-video-title').innerText = title || 'YouTube Video';
+            document.getElementById('watch-channel-title').innerText = channelTitle || 'YouTube Channel';
+            document.getElementById('watch-channel-avatar').innerText = (channelTitle && channelTitle.length > 0) ? channelTitle.charAt(0).toUpperCase() : 'Y';
+            document.getElementById('watch-published-at').innerText = formatDate(publishedAt);
+
+            document.getElementById('watch-description-content').innerText = description || 'Không có mô tả cho video này.';
+
+            // TẠO IFRAME PHÁT VIDEO CHUẨN CHO SAFARI IOS 10:
+            // playsinline=1 và webkit-playsinline=1 rất quan trọng để phát thẳng trên iPad
+            var playerContainer = document.getElementById('player-container');
+            playerContainer.innerHTML =
+                '<iframe ' +
+                'id="yt-active-player" ' +
+                'src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1" ' +
+                'frameborder="0" ' +
+                'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+                'allowfullscreen ' +
+                'webkitallowfullscreen ' +
+                'mozallowfullscreen>' +
+                '</iframe>';
+
+            // Nạp danh sách video liên quan
+            loadRelatedVideos(videoId);
+
+            // Hiển thị overlay
+            document.getElementById('watch-overlay').className = 'watch-overlay open';
+            document.getElementById('watch-overlay').scrollTop = 0;
+
+            // Đẩy state vào history để khi ấn nút Back của iPad thì đóng player
+            try {
+                window.history.pushState({ videoId: videoId }, title, '#watch?v=' + videoId);
+            } catch (e) { }
+        }
+
+        function closeWatchView(shouldPopHistory) {
+            state.currentVideoId = '';
+
+            // HỦY IFRAME ĐỂ DỪNG TIẾNG VÀ GIẢI PHÓNG BỘ NHỚ RAM 1GB CỦA IPAD 4
+            var playerContainer = document.getElementById('player-container');
+            playerContainer.innerHTML = '';
+
+            document.getElementById('watch-overlay').className = 'watch-overlay';
+
+            if (shouldPopHistory !== false && window.location.hash) {
+                try {
+                    window.history.back();
+                } catch (e) { }
+            }
+        }
+
+        function playFromDirectInput() {
+            var input = document.getElementById('quick-url-input');
+            var val = input.value.trim();
+            if (!val) {
+                alert('Vui lòng nhập đường link hoặc ID video YouTube');
+                return;
+            }
+            var videoId = extractVideoId(val);
+            if (videoId) {
+                openVideo(videoId, 'Video ID: ' + videoId, 'YouTube', '', 'Video được phát trực tiếp qua ID.');
+                input.value = '';
+            } else {
+                alert('Không nhận diện được ID video hợp lệ.');
+            }
+        }
+
+        function loadRelatedVideos(currentId) {
+            var listContainer = document.getElementById('related-videos-list');
+            listContainer.innerHTML = '';
+
+            // Ưu tiên lấy từ danh sách hiện tại trừ video đang phát
+            var related = state.videos.filter(function (v) {
+                return v.id !== currentId;
+            }).slice(0, 10);
+
+            if (related.length === 0) {
+                related = DEMO_VIDEOS.filter(function (v) {
+                    return v.id !== currentId;
+                });
+            }
+
+            for (var i = 0; i < related.length; i++) {
+                var item = related[i];
+                var div = document.createElement('div');
+                div.className = 'related-card';
+                div.setAttribute('data-id', item.id);
+                div.innerHTML =
+                    '<div class="related-thumb">' +
+                    '<img src="' + escapeHtml(item.thumbnail) + '" alt="' + escapeHtml(item.title) + '" onerror="this.src=\'https://via.placeholder.com/140x79/202020/ffffff?text=Video\'">' +
+                    '</div>' +
+                    '<div class="related-info">' +
+                    '<div class="related-video-title">' + escapeHtml(item.title) + '</div>' +
+                    '<div class="related-channel">' + escapeHtml(item.channelTitle) + '</div>' +
+                    '</div>';
+
+                // Gán sự kiện click
+                (function (video) {
+                    div.onclick = function () {
+                        openVideo(video.id, video.title, video.channelTitle, video.publishedAt, video.description);
+                    };
+                })(item);
+
+                listContainer.appendChild(div);
+            }
+        }
+
+        function copyCurrentVideoUrl() {
+            if (!state.currentVideoId) return;
+            var url = 'https://youtu.be/' + state.currentVideoId;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function () {
+                    alert('Đã sao chép link video: ' + url);
+                }).catch(function () {
+                    prompt('Sao chép link bên dưới:', url);
+                });
+            } else {
+                prompt('Sao chép link bên dưới:', url);
+            }
+        }
+
+        function openInExternalSafari() {
+            if (!state.currentVideoId) return;
+            window.open('https://www.youtube.com/watch?v=' + state.currentVideoId, '_blank');
+        }
+
+        // ========================================================
+        // QUẢN LÝ MODAL API KEY
+        // ========================================================
+        function openApiModal() {
+            var modal = document.getElementById('modal-api');
+            var input = document.getElementById('api-key-input');
+            input.value = state.apiKey || '';
+            modal.className = 'modal-backdrop open';
+            setTimeout(function () { input.focus(); }, 150);
+        }
+
+        function closeApiModal() {
+            document.getElementById('modal-api').className = 'modal-backdrop';
+        }
+
+        function saveApiKey() {
+            var input = document.getElementById('api-key-input');
+            var key = input.value.trim();
+            if (!key) {
+                if (confirm('Bạn muốn xóa API Key đã lưu?')) {
+                    localStorage.removeItem('yt_api_key');
+                    state.apiKey = '';
+                    updateApiKeyUI();
+                    closeApiModal();
+                    showDemoVideos();
+                }
+                return;
+            }
+
+            localStorage.setItem('yt_api_key', key);
+            state.apiKey = key;
+            updateApiKeyUI();
+            closeApiModal();
+            alert('Đã lưu API Key thành công! Đang tải video...');
+            loadPopularVideos();
+        }
+
+        // ========================================================
+        // UI HELPERS
+        // ========================================================
+        function setLoading(isLoading) {
+            state.isLoading = isLoading;
+            var spinner = document.getElementById('loading-spinner');
+            if (spinner) {
+                spinner.style.display = isLoading ? 'block' : 'none';
+            }
+        }
+
+        function toggleLoadMore(show) {
+            var elem = document.getElementById('load-more-wrap');
+            if (elem) {
+                elem.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Chạy khi DOM sẵn sàng
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>
