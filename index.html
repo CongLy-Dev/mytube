@@ -1180,12 +1180,15 @@ body.custom-fullscreen #player-frame {
 
         <iframe
             id="player-frame"
+            name="youtube-player"
+            type="text/html"
+            width="100%"
+            height="100%"
             src=""
             frameborder="0"
+            scrolling="no"
             allowfullscreen
-            webkitallowfullscreen
-            mozallowfullscreen
-            referrerpolicy="strict-origin-when-cross-origin">
+            webkitallowfullscreen>
         </iframe>
 
     </div>
@@ -1240,6 +1243,16 @@ body.custom-fullscreen #player-frame {
             onclick="toggleFullscreen()">
 
             ⛶ Toàn màn hình
+
+        </button>
+
+        <button
+            id="openYoutubeButton"
+            class="action"
+            onclick="openCurrentOnYouTube()"
+            style="display:none;">
+
+            ▶ Mở YouTube
 
         </button>
 
@@ -1659,9 +1672,54 @@ function apiRequest(url, callback) {
 
             else {
 
-                callback(
+                var errorMessage =
                     "HTTP " +
-                    xhr.status,
+                    xhr.status;
+
+                try {
+
+                    var errorData =
+                        JSON.parse(
+                            xhr.responseText
+                        );
+
+                    if (
+                        errorData &&
+                        errorData.error &&
+                        errorData.error.message
+                    ) {
+
+                        errorMessage +=
+                            "<br>" +
+                            errorData.error.message;
+                    }
+
+                    if (
+                        errorData &&
+                        errorData.error &&
+                        errorData.error.errors &&
+                        errorData.error.errors.length
+                    ) {
+
+                        errorMessage +=
+                            "<br>Mã lỗi: " +
+                            errorData.error.errors[0].reason;
+                    }
+
+                }
+
+                catch(e) {
+
+                    if (xhr.responseText) {
+
+                        errorMessage +=
+                            "<br>" +
+                            xhr.responseText;
+                    }
+                }
+
+                callback(
+                    errorMessage,
                     null
                 );
 
@@ -1719,75 +1777,124 @@ function getYouTubeOrigin() {
 function playVideo(video) {
 
     if (!video || !video.id) {
-
         return;
-
     }
-
 
     currentVideoId =
         video.id;
-
 
     currentVideoIndex =
         findVideoIndex(
             video.id
         );
 
-
-    /* ---------------------------------------------
-       Player URL
-    --------------------------------------------- */
-
-    var playerURL =
-        "https://www.youtube.com/embed/" +
-        encodeURIComponent(video.id) +
-
-        "?playsinline=1" +
-
-        "&controls=1" +
-
-        "&rel=0";
-
-
     /*
-       Gửi origin của GitHub Pages
-       cho YouTube player.
+       ---------------------------------------------------------
+       YouTube Player - Safari iOS cũ
+       ---------------------------------------------------------
+       Tạo iframe mới mỗi lần bấm video để tránh Safari cũ
+       giữ lại iframe rỗng/cũ.
     */
 
     var origin =
         getYouTubeOrigin();
 
+    var playerURL =
+        "https://www.youtube.com/embed/" +
+        encodeURIComponent(video.id) +
+        "?playsinline=1" +
+        "&controls=1" +
+        "&rel=0" +
+        "&fs=1" +
+        "&enablejsapi=1";
 
     if (origin) {
-
         playerURL +=
             "&origin=" +
-            encodeURIComponent(
-                origin
-            );
-
+            encodeURIComponent(origin);
     }
-
-
-    /*
-       Xóa iframe cũ trước khi tạo lại.
-       Đây là cách an toàn hơn cho Safari cũ.
-    */
 
     var oldFrame =
         byId("player-frame");
 
+    if (oldFrame) {
 
-    oldFrame.src =
-        playerURL;
+        var newFrame =
+            document.createElement("iframe");
 
+        newFrame.id =
+            "player-frame";
+
+        newFrame.name =
+            "youtube-player";
+
+        newFrame.setAttribute(
+            "type",
+            "text/html"
+        );
+
+        newFrame.setAttribute(
+            "width",
+            "100%"
+        );
+
+        newFrame.setAttribute(
+            "height",
+            "100%"
+        );
+
+        newFrame.setAttribute(
+            "frameborder",
+            "0"
+        );
+
+        newFrame.setAttribute(
+            "scrolling",
+            "no"
+        );
+
+        newFrame.setAttribute(
+            "allowfullscreen",
+            "allowfullscreen"
+        );
+
+        newFrame.setAttribute(
+            "webkitallowfullscreen",
+            "webkitallowfullscreen"
+        );
+
+        newFrame.src =
+            playerURL;
+
+        oldFrame.parentNode.replaceChild(
+            newFrame,
+            oldFrame
+        );
+    }
 
     byId(
         "playerPlaceholder"
     ).style.display =
         "none";
 
+    /*
+       iOS 10 / Safari cũ:
+       vẫn ưu tiên iframe. Nếu embed hiện tại không tương thích,
+       người dùng có thể mở video bằng m.youtube.com.
+    */
+
+    var youtubeButton =
+        byId(
+            "openYoutubeButton"
+        );
+
+    if (youtubeButton) {
+
+        youtubeButton.style.display =
+            isOldIOS()
+            ? "inline-block"
+            : "none";
+    }
 
     /*
        Video title
@@ -1800,13 +1907,11 @@ function playVideo(video) {
             video.title
         );
 
-
     /*
        Meta
     */
 
     var meta = "";
-
 
     if (video.channel) {
 
@@ -1814,32 +1919,24 @@ function playVideo(video) {
             escapeHTML(
                 video.channel
             );
-
     }
-
 
     if (video.views) {
 
         if (meta) {
-
             meta += " • ";
-
         }
-
 
         meta +=
             formatViews(
                 video.views
             );
-
     }
-
 
     byId(
         "videoMeta"
     ).innerHTML =
         meta;
-
 
     /*
        History
@@ -1847,22 +1944,19 @@ function playVideo(video) {
 
     saveHistory(video);
 
-
     /*
        Highlight
     */
 
     updateCurrentCard();
 
-
     /*
-       Tải đề xuất.
+       Tải đề xuất
     */
 
     loadRecommended(
         video
     );
-
 
     /*
        Trên iPad:
@@ -3380,6 +3474,39 @@ function scrollToRecommended() {
         );
 
     }
+}
+
+
+/* =========================================================
+   OLD iOS FALLBACK
+========================================================= */
+
+function isOldIOS() {
+
+    var ua =
+        navigator.userAgent || "";
+
+    return (
+        /iPad|iPhone|iPod/.test(ua) &&
+        /OS 10_/.test(ua)
+    );
+}
+
+
+function openCurrentOnYouTube() {
+
+    if (!currentVideoId) {
+        return;
+    }
+
+    var url =
+        "https://m.youtube.com/watch?v=" +
+        encodeURIComponent(
+            currentVideoId
+        );
+
+    window.location.href =
+        url;
 }
 
 
