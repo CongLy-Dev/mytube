@@ -1,0 +1,2801 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTube</title>
+    <style>
+        /* ==========================================================================
+           RESET & CORE STYLES - TỐI ƯU ĐẶC BIỆT CHO SAFARI TRÊN IPAD 4 (iOS 10.3.4)
+           - Tuyệt đối không dùng Flexbox GAP (iOS 10 không hỗ trợ gap)
+           - Tuyệt đối không dùng CSS aspect-ratio (iOS 10 không hỗ trợ aspect-ratio)
+           - Tuyệt đối không dùng Tailwind CDN hay JS JIT hiện đại
+           - Sử dụng Pure Vanilla CSS siêu nhẹ, có hardware acceleration cho 1GB RAM
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        button, input, select, textarea {
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            border: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Tỷ lệ 16:9 cho Safari iOS 10 (Padding hack kinh điển) */
+        .ratio-16-9 {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 9 / 16 = 56.25% */
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .ratio-16-9 > * {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            object-fit: cover;
+        }
+
+        /* Cuộn cảm ứng mượt mà trên iOS 10 */
+        .touch-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        .touch-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Giới hạn số dòng chữ */
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hidden-view {
+            display: none !important;
+        }
+
+        /* ==========================================================================
+           HEADER (THANH ĐIỀU HƯỚNG TRÊN CÙNG)
+           ========================================================================== */
+        .yt-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background-color: #0f0f0f;
+            border-bottom: 1px solid #272727;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .header-left {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: transparent;
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: -webkit-inline-box;
+            display: -webkit-inline-flex;
+            display: inline-flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 8px;
+            -webkit-transition: background-color 0.2s;
+            transition: background-color 0.2s;
+        }
+
+        .icon-btn:hover, .icon-btn:active {
+            background-color: #272727;
+        }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+            display: block;
+        }
+
+        .logo-wrap {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            cursor: pointer;
+            padding-right: 8px;
+        }
+
+        .logo-play {
+            width: 30px;
+            height: 22px;
+            background-color: #ff0000;
+            border-radius: 6px;
+            position: relative;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            margin-right: 4px;
+        }
+
+        .logo-play-triangle {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 5px 0 5px 9px;
+            border-color: transparent transparent transparent #ffffff;
+        }
+
+        .logo-text {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #ffffff;
+            font-family: 'Oswald', 'Arial Black', -apple-system, sans-serif;
+            position: relative;
+        }
+
+        .logo-country {
+            font-size: 10px;
+            font-weight: 500;
+            color: #aaaaaa;
+            margin-left: 3px;
+            vertical-align: super;
+        }
+
+        .header-center {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            max-width: 640px;
+            margin: 0 16px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .search-container {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            width: 100%;
+            height: 38px;
+            background-color: #121212;
+            border: 1px solid #303030;
+            border-radius: 40px;
+            overflow: hidden;
+            -webkit-transition: border-color 0.2s;
+            transition: border-color 0.2s;
+        }
+
+        .search-container:focus-within {
+            border-color: #3ea6ff;
+        }
+
+        .search-input {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            background: transparent;
+            color: #ffffff;
+            padding: 0 16px;
+            font-size: 15px;
+        }
+
+        .search-input::-webkit-input-placeholder {
+            color: #888888;
+        }
+
+        .search-btn {
+            width: 60px;
+            background-color: #222222;
+            border-left: 1px solid #303030;
+            color: #ffffff;
+            cursor: pointer;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+
+        .search-btn:active {
+            background-color: #333333;
+        }
+
+        .search-btn svg {
+            width: 19px;
+            height: 19px;
+            fill: currentColor;
+            opacity: 0.85;
+        }
+
+        .header-right {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .api-key-badge-btn {
+            background: #272727;
+            color: #f1f1f1;
+            border-radius: 18px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-right: 8px;
+            border: 1px solid #3e3e3e;
+        }
+
+        .api-key-badge-btn:active {
+            background: #383838;
+        }
+
+        .api-key-badge-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            margin-right: 6px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #cc0000;
+            color: #ffffff;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           SIDEBAR (THANH MENU ĐIỀU HƯỚNG BÊN TRÁI)
+           ========================================================================== */
+        .yt-sidebar {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            bottom: 0;
+            width: 220px;
+            background-color: #0f0f0f;
+            border-right: 1px solid #272727;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 12px 0;
+            z-index: 90;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            -webkit-transition: -webkit-transform 0.25s ease;
+            transition: transform 0.25s ease;
+        }
+
+        .sidebar-item {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            padding: 10px 20px;
+            color: #f1f1f1;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 0 10px 2px 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar-item:active, .sidebar-item.active {
+            background-color: #272727;
+            font-weight: 600;
+        }
+
+        .sidebar-item svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+            margin-right: 18px;
+            display: block;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background-color: #272727;
+            margin: 10px 0;
+        }
+
+        .sidebar-heading {
+            font-size: 13px;
+            font-weight: 600;
+            color: #aaaaaa;
+            padding: 6px 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Layout khi sidebar thu gọn hoặc mở rộng */
+        body.sidebar-collapsed .yt-sidebar {
+            -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0);
+        }
+
+        body.sidebar-collapsed .yt-main-content {
+            margin-left: 0;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 85;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT AREA
+           ========================================================================== */
+        .yt-main-content {
+            margin-top: 56px;
+            margin-left: 220px;
+            min-height: calc(100vh - 56px);
+            padding: 16px;
+            -webkit-transition: margin-left 0.25s ease;
+            transition: margin-left 0.25s ease;
+        }
+
+        /* ==========================================================================
+           CHIPS BAR (THANH THỂ LOẠI NGANG)
+           ========================================================================== */
+        .chips-bar {
+            margin-bottom: 18px;
+            padding-bottom: 4px;
+        }
+
+        .chip {
+            display: -webkit-inline-box;
+            display: -webkit-inline-flex;
+            display: inline-flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            background-color: #272727;
+            color: #f1f1f1;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            margin-right: 10px;
+            cursor: pointer;
+            -webkit-transition: background-color 0.2s, color 0.2s;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .chip:active, .chip.active {
+            background-color: #f1f1f1;
+            color: #0f0f0f;
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+           VIDEO GRID & CARDS (HỆ THỐNG LƯỚI KHÔNG DÙNG GAP)
+           ========================================================================== */
+        .yt-grid {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-left: -8px;
+            margin-right: -8px;
+        }
+
+        .yt-card-col {
+            width: 100%;
+            padding: 0 8px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 600px) {
+            .yt-card-col {
+                width: 50%;
+            }
+        }
+
+        @media (min-width: 960px) {
+            .yt-card-col {
+                width: 33.3333%;
+            }
+        }
+
+        @media (min-width: 1300px) {
+            .yt-card-col {
+                width: 25%;
+            }
+        }
+
+        .video-card {
+            display: block;
+            cursor: pointer;
+        }
+
+        .card-thumb-wrap {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background-color: #202020;
+            margin-bottom: 10px;
+        }
+
+        .card-thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .card-duration-badge {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-info-row {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: start;
+            -webkit-align-items: flex-start;
+            align-items: flex-start;
+        }
+
+        .card-channel-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #383838;
+            margin-right: 12px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .card-channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-meta {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #f1f1f1;
+            margin-bottom: 4px;
+        }
+
+        .video-card:hover .card-title, .video-card:active .card-title {
+            color: #3ea6ff;
+        }
+
+        .card-channel-name {
+            font-size: 12.5px;
+            color: #aaaaaa;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .card-channel-name:hover {
+            color: #f1f1f1;
+            text-decoration: underline;
+        }
+
+        .card-views-time {
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+
+        .verified-icon {
+            width: 13px;
+            height: 13px;
+            fill: #aaaaaa;
+            margin-left: 4px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        /* ==========================================================================
+           CHANNEL CARD IN SEARCH (THẺ KÊNH KHI TÌM KIẾM)
+           ========================================================================== */
+        .channel-search-card {
+            background-color: #1a1a1a;
+            border: 1px solid #2e2e2e;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 24px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .channel-search-card:active {
+            background-color: #242424;
+        }
+
+        .channel-search-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 20px;
+            background-color: #333333;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .channel-search-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .channel-search-info {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .channel-search-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .channel-search-meta {
+            font-size: 13px;
+            color: #aaaaaa;
+            margin-bottom: 6px;
+        }
+
+        .channel-search-desc {
+            font-size: 12.5px;
+            color: #888888;
+        }
+
+        .channel-search-btn {
+            background-color: #f1f1f1;
+            color: #0f0f0f;
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            margin-left: 14px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        /* ==========================================================================
+           TRANG KÊNH YOUTUBE (CHANNEL VIEW) - GIAO DIỆN CHUẨN ĐẶC SẮC
+           ========================================================================== */
+        .channel-page-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Ảnh bìa kênh */
+        .channel-banner-wrap {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            background: -webkit-linear-gradient(left, #1e1e24, #2a2a35, #141419);
+            background: linear-gradient(to right, #1e1e24, #2a2a35, #141419);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        @media (min-width: 768px) {
+            .channel-banner-wrap {
+                height: 200px;
+            }
+        }
+
+        .channel-banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Header thông tin kênh */
+        .channel-header-wrap {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .channel-header-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #333333;
+            margin-right: 20px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffffff;
+            border: 2px solid #272727;
+        }
+
+        @media (min-width: 768px) {
+            .channel-header-avatar {
+                width: 110px;
+                height: 110px;
+            }
+        }
+
+        .channel-header-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .channel-header-info {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .channel-header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .channel-header-submeta {
+            font-size: 13.5px;
+            color: #aaaaaa;
+            margin-bottom: 8px;
+        }
+
+        .channel-header-desc {
+            font-size: 13px;
+            color: #999999;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .channel-header-desc:hover {
+            color: #cccccc;
+        }
+
+        .btn-subscribe {
+            display: -webkit-inline-box;
+            display: -webkit-inline-flex;
+            display: inline-flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            background-color: #f1f1f1;
+            color: #0f0f0f;
+            font-weight: 600;
+            font-size: 13.5px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            -webkit-transition: background-color 0.2s;
+            transition: background-color 0.2s;
+        }
+
+        .btn-subscribe.subscribed {
+            background-color: #272727;
+            color: #f1f1f1;
+        }
+
+        .btn-subscribe:active {
+            opacity: 0.85;
+        }
+
+        /* Tabs của trang kênh */
+        .channel-tabs {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            border-bottom: 1px solid #272727;
+            margin-bottom: 20px;
+        }
+
+        .channel-tab-btn {
+            background: transparent;
+            color: #aaaaaa;
+            font-size: 14.5px;
+            font-weight: 600;
+            padding: 12px 20px;
+            cursor: pointer;
+            position: relative;
+            margin-right: 8px;
+        }
+
+        .channel-tab-btn.active {
+            color: #ffffff;
+        }
+
+        .channel-tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ffffff;
+        }
+
+        .channel-tab-btn:hover {
+            color: #ffffff;
+        }
+
+        /* Nút Tải thêm video */
+        .load-more-btn-wrap {
+            text-align: center;
+            padding: 20px 0 40px 0;
+        }
+
+        .btn-load-more {
+            background-color: #222222;
+            border: 1px solid #383838;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .btn-load-more:active {
+            background-color: #333333;
+        }
+
+        /* Tab Giới thiệu kênh */
+        .channel-about-box {
+            background: #181818;
+            border: 1px solid #272727;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 800px;
+        }
+
+        .about-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .about-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #cccccc;
+            white-space: pre-line;
+            margin-bottom: 24px;
+        }
+
+        .about-stat-row {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            font-size: 13.5px;
+            color: #aaaaaa;
+            margin-bottom: 10px;
+            border-top: 1px solid #262626;
+            padding-top: 10px;
+        }
+
+        .about-stat-row svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            margin-right: 12px;
+        }
+
+        /* ==========================================================================
+           TRANG XEM VIDEO (WATCH VIEW) - GIỮ NGUYÊN TRÌNH PHÁT YOUTUBE CHUẨN
+           ========================================================================== */
+        .watch-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            .watch-container {
+                -webkit-box-orient: horizontal;
+                -webkit-box-direction: normal;
+                -webkit-flex-direction: row;
+                flex-direction: row;
+            }
+        }
+
+        .watch-primary {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 0;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 1024px) {
+            .watch-primary {
+                margin-right: 24px;
+                margin-bottom: 0;
+            }
+        }
+
+        .watch-secondary {
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .watch-secondary {
+                width: 380px;
+                -webkit-flex-shrink: 0;
+                flex-shrink: 0;
+            }
+        }
+
+        .player-container {
+            border-radius: 14px;
+            overflow: hidden;
+            background-color: #000000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            margin-bottom: 14px;
+        }
+
+        .watch-video-title {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .watch-channel-bar {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #272727;
+        }
+
+        .watch-channel-left {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-right: 14px;
+            cursor: pointer;
+        }
+
+        .watch-channel-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #333333;
+            overflow: hidden;
+            margin-right: 12px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .watch-channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .watch-channel-name-wrap {
+            margin-right: 16px;
+        }
+
+        .watch-channel-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .watch-channel-subs {
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+
+        .watch-actions-right {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .pill-btn-group {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            background-color: #272727;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-right: 8px;
+        }
+
+        .pill-action-btn {
+            background: transparent;
+            color: #f1f1f1;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .pill-action-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            margin-right: 6px;
+        }
+
+        .pill-action-btn:active {
+            background-color: #383838;
+        }
+
+        .pill-divider {
+            width: 1px;
+            background-color: #3e3e3e;
+        }
+
+        .single-action-btn {
+            background-color: #272727;
+            color: #f1f1f1;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .single-action-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            margin-right: 6px;
+        }
+
+        .single-action-btn:active {
+            background-color: #383838;
+        }
+
+        /* Khung mô tả video */
+        .watch-desc-box {
+            background-color: #222222;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            margin-bottom: 24px;
+            -webkit-transition: background-color 0.2s;
+            transition: background-color 0.2s;
+        }
+
+        .watch-desc-box:hover {
+            background-color: #272727;
+        }
+
+        .watch-stats-line {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #f1f1f1;
+            margin-bottom: 8px;
+        }
+
+        .watch-desc-text {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #e0e0e0;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .show-more-toggle {
+            font-weight: 600;
+            color: #ffffff;
+            margin-top: 8px;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        /* Danh sách video liên quan */
+        .related-card {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .related-card:active {
+            background-color: #222222;
+        }
+
+        .related-thumb-wrap {
+            width: 140px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 10px;
+            background-color: #272727;
+            position: relative;
+        }
+
+        .related-info {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .related-title {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .related-channel {
+            font-size: 12px;
+            color: #aaaaaa;
+            margin-bottom: 2px;
+        }
+
+        .related-meta {
+            font-size: 11.5px;
+            color: #aaaaaa;
+        }
+
+        /* ==========================================================================
+           MODAL CÀI ĐẶT YOUTUBE API KEY
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background-color: #222222;
+            border: 1px solid #333333;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.8);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .modal-title svg {
+            width: 22px;
+            height: 22px;
+            fill: #ff0000;
+            margin-right: 10px;
+        }
+
+        .modal-body-text {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #cccccc;
+            margin-bottom: 16px;
+        }
+
+        .modal-input {
+            width: 100%;
+            background-color: #121212;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .modal-input:focus {
+            border-color: #3ea6ff;
+        }
+
+        .modal-actions {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: end;
+            -webkit-justify-content: flex-end;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .btn-modal-cancel {
+            background: transparent;
+            color: #aaaaaa;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .btn-modal-save {
+            background-color: #3ea6ff;
+            color: #000000;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 18px;
+            border-radius: 18px;
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           BANNER THÔNG BÁO TRẠNG THÁI
+           ========================================================================== */
+        .status-banner {
+            background-color: #1f1f1f;
+            border-left: 4px solid #3ea6ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #f1f1f1;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .status-banner.error {
+            border-left-color: #ff4e45;
+            background-color: #2b1717;
+        }
+
+        .status-banner-btn {
+            background-color: #333333;
+            color: #ffffff;
+            font-size: 12.5px;
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-left: 12px;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        /* ==========================================================================
+           RESPONSIVE DÀNH CHO IPAD VÀ THIẾT BỊ DI ĐỘNG
+           ========================================================================== */
+        @media (max-width: 768px) {
+            .yt-sidebar {
+                -webkit-transform: translate3d(-100%, 0, 0);
+                transform: translate3d(-100%, 0, 0);
+            }
+            body.sidebar-open .yt-sidebar {
+                -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0);
+            }
+            body.sidebar-open .sidebar-backdrop {
+                display: block;
+            }
+            .yt-main-content {
+                margin-left: 0;
+                padding: 12px 10px;
+            }
+            .logo-text, .logo-country {
+                display: none;
+            }
+            .search-container {
+                height: 36px;
+            }
+            .header-center {
+                margin: 0 8px;
+            }
+        }
+    </style>
+</head>
+<body class="sidebar-collapsed">
+
+    <!-- ==========================================================================
+         THANH ĐIỀU HƯỚNG TRÊN CÙNG (HEADER)
+         ========================================================================== -->
+    <header class="yt-header">
+        <!-- Logo & Hamburger Menu -->
+        <div class="header-left">
+            <button id="menu-toggle-btn" class="icon-btn" title="Danh mục">
+                <svg viewBox="0 0 24 24"><path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path></svg>
+            </button>
+            <div id="logo-btn" class="logo-wrap" title="Trang chủ YouTube">
+                <div class="logo-play">
+                    <div class="logo-play-triangle"></div>
+                </div>
+                <span class="logo-text">YouTube</span>
+                <span class="logo-country">VN</span>
+            </div>
+        </div>
+
+        <!-- Ô tìm kiếm chuẩn YouTube -->
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="Tìm kiếm video hoặc kênh..." autocomplete="off">
+                <button id="search-btn" class="search-btn" title="Tìm kiếm">
+                    <svg viewBox="0 0 24 24"><path d="M20.87 20.17l-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Cài đặt & Avatar -->
+        <div class="header-right">
+            <button id="settings-btn" class="api-key-badge-btn" title="Cài đặt API Key">
+                <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"></path></svg>
+                <span>API Key</span>
+            </button>
+            <div id="user-avatar" class="user-avatar" title="Tài khoản">Y</div>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         THANH MENU BÊN TRÁI (SIDEBAR)
+         ========================================================================== -->
+    <aside id="sidebar" class="yt-sidebar">
+        <div id="nav-home" class="sidebar-item active">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+            <span>Trang chủ</span>
+        </div>
+        <div id="nav-trending" class="sidebar-item">
+            <svg viewBox="0 0 24 24"><path d="M17.53 11.2c-.23-.3-.5-.56-.76-.82-.65-.6-1.4-1.03-2.03-1.66-1.46-1.46-1.78-3.87-.85-5.72-.94.37-1.73 1.02-2.34 1.83-1.43 1.9-1.39 4.56.13 6.43.08.1.15.2.2.3-.39.06-.77.01-1.13-.13-.78-.32-1.4-.92-1.78-1.68-.08-.17-.15-.35-.2-.54-.51 1.08-.66 2.3-.39 3.51.48 2.16 2.21 3.86 4.38 4.2 2.94.46 5.6-1.42 6.13-4.22.18-.95.04-1.93-.36-2.8-.24-.51-.55-.98-.94-1.38z"></path></svg>
+            <span>Thịnh hành</span>
+        </div>
+        <div id="nav-music" class="sidebar-item">
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"></path></svg>
+            <span>Âm nhạc</span>
+        </div>
+        <div id="nav-gaming" class="sidebar-item">
+            <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg>
+            <span>Trò chơi</span>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Khám phá</div>
+        <div id="nav-settings" class="sidebar-item">
+            <svg viewBox="0 0 24 24"><path d="M12 8.5c1.93 0 3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5-3.5-1.57-3.5-3.5 1.57-3.5 3.5-3.5zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm7.36 4.07h1.49c-.19-1.99-1.07-3.76-2.39-5.18l-1.05 1.05c1.07 1.18 1.76 2.72 1.95 4.13zM6.65 6.94L5.6 5.89C4.28 7.31 3.4 9.08 3.21 11.07h1.49c.19-1.41.88-2.95 1.95-4.13z"></path></svg>
+            <span>Cài đặt API Key</span>
+        </div>
+    </aside>
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- ==========================================================================
+         VÙNG NỘI DUNG CHÍNH (MAIN CONTENT)
+         ========================================================================== -->
+    <main class="yt-main-content">
+
+        <!-- THÔNG BÁO TRẠNG THÁI (LỖI / ĐANG TẢI) -->
+        <div id="status-banner" class="status-banner hidden-view">
+            <span id="status-text">Đang tải dữ liệu...</span>
+            <button id="status-action-btn" class="status-banner-btn hidden-view">Cài đặt API</button>
+        </div>
+
+        <!-- ======================================================================
+             VIEW 1: TRANG CHỦ & TÌM KIẾM (HOME VIEW)
+             ====================================================================== -->
+        <section id="home-view">
+            <!-- Thanh Chips phân loại chủ đề -->
+            <div id="chips-bar" class="chips-bar touch-scroll">
+                <div class="chip active" data-keyword="">Tất cả</div>
+                <div class="chip" data-keyword="Âm nhạc">Âm nhạc</div>
+                <div class="chip" data-keyword="MixiGaming">MixiGaming</div>
+                <div class="chip" data-keyword="Sơn Tùng M-TP">Sơn Tùng M-TP</div>
+                <div class="chip" data-keyword="Tin tức 24h">Tin tức</div>
+                <div class="chip" data-keyword="Trò chơi">Trò chơi</div>
+                <div class="chip" data-keyword="Bóng đá">Bóng đá</div>
+                <div class="chip" data-keyword="Hài kịch">Hài kịch</div>
+                <div class="chip" data-keyword="Công nghệ">Công nghệ</div>
+                <div class="chip" data-keyword="Khoa học">Khoa học</div>
+                <div class="chip" data-keyword="Hoạt hình">Hoạt hình</div>
+                <div class="chip" data-keyword="Du lịch">Du lịch</div>
+            </div>
+
+            <!-- Thẻ Kênh đặc biệt khi người dùng tìm kiếm -->
+            <div id="channel-search-result" class="hidden-view"></div>
+
+            <!-- Lưới thẻ video -->
+            <div id="video-grid" class="yt-grid"></div>
+
+            <!-- Nút tải thêm cho trang chủ / tìm kiếm -->
+            <div id="home-load-more" class="load-more-btn-wrap hidden-view">
+                <button id="btn-load-more-home" class="btn-load-more">Tải thêm video</button>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 2: TRANG KÊNH YOUTUBE CHI TIẾT (CHANNEL VIEW)
+             ====================================================================== -->
+        <section id="channel-view" class="channel-page-container hidden-view">
+            <!-- Ảnh bìa kênh (Banner) -->
+            <div class="channel-banner-wrap">
+                <img id="channel-banner-img" class="channel-banner-img hidden-view" src="" alt="Channel Banner">
+            </div>
+
+            <!-- Thông tin đầu kênh (Avatar, Title, Handle, Subs, Subscribe button) -->
+            <div class="channel-header-wrap">
+                <div id="channel-header-avatar" class="channel-header-avatar">
+                    <span id="channel-header-avatar-txt">Y</span>
+                    <img id="channel-header-avatar-img" class="hidden-view" src="" alt="Channel Avatar">
+                </div>
+                <div class="channel-header-info">
+                    <h1 id="channel-header-title" class="channel-header-title">
+                        <span>Tên Kênh</span>
+                        <svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1 1.4-1.4 2.8 2.7 7.4-7.4 1.4 1.4-8.8 8.8z"></path></svg>
+                    </h1>
+                    <div id="channel-header-submeta" class="channel-header-submeta">@handle • 0 người đăng ký • 0 video</div>
+                    <div id="channel-header-desc" class="channel-header-desc line-clamp-2">Mô tả kênh...</div>
+                    <div>
+                        <button id="channel-subscribe-btn" class="btn-subscribe">Đăng ký</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh Tabs Kênh (Video, Danh sách phát, Giới thiệu) -->
+            <div class="channel-tabs">
+                <button id="tab-btn-videos" class="channel-tab-btn active">Video</button>
+                <button id="tab-btn-playlists" class="channel-tab-btn">Danh sách phát</button>
+                <button id="tab-btn-about" class="channel-tab-btn">Giới thiệu</button>
+            </div>
+
+            <!-- Tab 1: Toàn bộ Video của Kênh -->
+            <div id="channel-tab-content-videos">
+                <div id="channel-video-grid" class="yt-grid"></div>
+                <div id="channel-load-more-wrap" class="load-more-btn-wrap hidden-view">
+                    <button id="btn-load-more-channel" class="btn-load-more">Tải thêm video của kênh</button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Danh sách phát của Kênh -->
+            <div id="channel-tab-content-playlists" class="hidden-view">
+                <div id="channel-playlists-grid" class="yt-grid"></div>
+            </div>
+
+            <!-- Tab 3: Giới thiệu kênh -->
+            <div id="channel-tab-content-about" class="hidden-view">
+                <div class="channel-about-box">
+                    <div class="about-section-title">Mô tả</div>
+                    <div id="about-full-desc" class="about-description">Chưa có mô tả cho kênh này.</div>
+                    <div class="about-section-title">Chi tiết bổ sung</div>
+                    <div class="about-stat-row">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
+                        <span id="about-published-date">Đã tham gia: --</span>
+                    </div>
+                    <div class="about-stat-row">
+                        <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+                        <span id="about-total-views">0 lượt xem</span>
+                    </div>
+                    <div class="about-stat-row">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>
+                        <span id="about-country">Quốc gia: Việt Nam</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 3: TRANG XEM VIDEO (WATCH VIEW - TRÌNH PHÁT GỐC YOUTUBE)
+             ====================================================================== -->
+        <section id="watch-view" class="watch-container hidden-view">
+            <!-- Cột trái: Trình phát YouTube & Chi tiết Video -->
+            <div class="watch-primary">
+                <!-- Khung phát video chuẩn YouTube (Tỷ lệ 16:9, giữ nguyên trình phát YouTube) -->
+                <div class="player-container">
+                    <div class="ratio-16-9">
+                        <div id="youtube-player"></div>
+                    </div>
+                </div>
+
+                <!-- Tiêu đề Video -->
+                <h2 id="watch-title" class="watch-video-title">Tiêu đề video</h2>
+
+                <!-- Thanh tác vụ và Kênh -->
+                <div class="watch-channel-bar">
+                    <!-- Bên trái: Avatar & Kênh (Bấm vào để vào thẳng Kênh!) -->
+                    <div id="watch-channel-group" class="watch-channel-left" title="Xem trang kênh này">
+                        <div id="watch-channel-avatar" class="watch-channel-avatar">
+                            <span id="watch-channel-avatar-txt">Y</span>
+                            <img id="watch-channel-avatar-img" class="hidden-view" src="" alt="">
+                        </div>
+                        <div class="watch-channel-name-wrap">
+                            <div class="watch-channel-name">
+                                <span id="watch-channel-name-txt">Tên Kênh</span>
+                                <svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1 1.4-1.4 2.8 2.7 7.4-7.4 1.4 1.4-8.8 8.8z"></path></svg>
+                            </div>
+                            <div id="watch-channel-subs" class="watch-channel-subs">0 người đăng ký</div>
+                        </div>
+                        <button id="watch-subscribe-btn" class="btn-subscribe">Đăng ký</button>
+                    </div>
+
+                    <!-- Bên phải: Thích, Chia sẻ -->
+                    <div class="watch-actions-right">
+                        <div class="pill-btn-group">
+                            <button id="btn-like" class="pill-action-btn">
+                                <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"></path></svg>
+                                <span id="watch-likes-count">Thích</span>
+                            </button>
+                            <div class="pill-divider"></div>
+                            <button id="btn-dislike" class="pill-action-btn" title="Không thích">
+                                <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></svg>
+                            </button>
+                        </div>
+                        <button id="btn-share" class="single-action-btn" title="Chia sẻ">
+                            <svg viewBox="0 0 24 24"><path d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z"></path></svg>
+                            <span>Chia sẻ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Khung Mô Tả Video -->
+                <div id="watch-desc-box" class="watch-desc-box">
+                    <div id="watch-stats-line" class="watch-stats-line">0 lượt xem • Đang tải ngày...</div>
+                    <div id="watch-desc-text" class="watch-desc-text line-clamp-2">Đang tải mô tả video...</div>
+                    <span id="btn-toggle-desc" class="show-more-toggle">Hiện thêm</span>
+                </div>
+            </div>
+
+            <!-- Cột phải: Video liên quan -->
+            <div class="watch-secondary">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #ffffff;">Video liên quan</h3>
+                <div id="related-videos"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================================================
+         MODAL CÀI ĐẶT YOUTUBE DATA API KEY
+         ========================================================================== -->
+    <div id="api-modal" class="modal-overlay hidden-view">
+        <div class="modal-card">
+            <div class="modal-title">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                <span>Cài Đặt YouTube Data API Key</span>
+            </div>
+            <p class="modal-body-text">
+                Nhập mã <strong>YouTube Data API v3 Key</strong> của bạn để xem video trực tiếp, tìm kiếm và truy cập các kênh YouTube. Khóa được lưu an toàn trong trình duyệt Safari trên iPad 4 của bạn.
+            </p>
+            <input type="text" id="api-key-input" class="modal-input" placeholder="Dán mã AIzaSy... vào đây" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div style="font-size: 12px; color: #888888; line-height: 1.4;">
+                * Hướng dẫn: Bạn có thể lấy API Key miễn phí từ <a href="https://console.cloud.google.com/" target="_blank" style="color: #3ea6ff; text-decoration: underline;">Google Cloud Console</a> bằng cách bật dịch vụ "YouTube Data API v3".
+            </div>
+            <div class="modal-actions">
+                <button id="btn-cancel-api" class="btn-modal-cancel">Đóng</button>
+                <button id="btn-save-api" class="btn-modal-save">Lưu Khóa API</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         JAVASCRIPT - VIẾT THEO CHUẨN ES5 / AN TOÀN CHO SAFARI iOS 10.3.4 (IPAD 4)
+         - Tuyệt đối không dùng Optional Chaining (?.) hoặc Nullish Coalescing (??)
+         - Tuyệt đối không dùng async/await
+         - Sử dụng Promise + XMLHttpRequest chuẩn để tương thích 100%
+         ========================================================================== -->
+    <script>
+        // Khởi tạo các biến toàn cục
+        var API_KEY = localStorage.getItem('yt_api_key') || '';
+        var player = null;
+        var currentVideoId = null;
+        var currentChannelId = null;
+        var currentUploadsPlaylistId = null;
+        var channelNextPageToken = null;
+        var homeNextPageToken = null;
+        var currentSearchKeyword = '';
+
+        // Dữ liệu mẫu phong phú khi chưa có API Key hoặc hết quota
+        var MOCK_VIDEOS = [
+            {
+                id: '2g811Eo7K8U',
+                snippet: {
+                    title: 'SƠN TÙNG M-TP | ĐỪNG LÀM TRÁI TIM ANH ĐAU | OFFICIAL MUSIC VIDEO',
+                    channelTitle: 'Sơn Tùng M-TP Official',
+                    channelId: 'UClyA rs4GYyCvh445447',
+                    publishedAt: '2024-06-08T13:00:00Z',
+                    thumbnails: {
+                        medium: { url: 'https://i.ytimg.com/vi/2g811Eo7K8U/mqdefault.jpg' }
+                    }
+                },
+                statistics: { viewCount: '85200000', likeCount: '1500000' }
+            },
+            {
+                id: 'L74pG3pE',
+                snippet: {
+                    title: 'Bộ Tộc MixiGaming | Những Khoảnh Khắc Hài Hước Cười Ra Nước Mắt',
+                    channelTitle: 'MixiGaming',
+                    channelId: 'UCr0298nFf32z',
+                    publishedAt: '2024-05-12T10:00:00Z',
+                    thumbnails: {
+                        medium: { url: 'https://i.ytimg.com/vi/a5118i_L_qU/mqdefault.jpg' }
+                    }
+                },
+                statistics: { viewCount: '2400000', likeCount: '120000' }
+            },
+            {
+                id: 'kJQP7kiw5Fk',
+                snippet: {
+                    title: 'Luis Fonsi - Despacito ft. Daddy Yankee',
+                    channelTitle: 'Luis Fonsi',
+                    channelId: 'UCLp8RBhQHu9wSsq62j_PA6A',
+                    publishedAt: '2017-01-13T05:00:00Z',
+                    thumbnails: {
+                        medium: { url: 'https://i.ytimg.com/vi/kJQP7kiw5Fk/mqdefault.jpg' }
+                    }
+                },
+                statistics: { viewCount: '8500000000', likeCount: '52000000' }
+            },
+            {
+                id: 'JGwWNGJdvx8',
+                snippet: {
+                    title: 'Ed Sheeran - Shape of You (Official Music Video)',
+                    channelTitle: 'Ed Sheeran',
+                    channelId: 'UC0C-w0YjGpqDXGB8IHb662A',
+                    publishedAt: '2017-01-30T11:00:00Z',
+                    thumbnails: {
+                        medium: { url: 'https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg' }
+                    }
+                },
+                statistics: { viewCount: '6300000000', likeCount: '34000000' }
+            }
+        ];
+
+        // Lấy các phần tử DOM chính
+        var homeView = document.getElementById('home-view');
+        var channelView = document.getElementById('channel-view');
+        var watchView = document.getElementById('watch-view');
+        var videoGrid = document.getElementById('video-grid');
+        var statusBanner = document.getElementById('status-banner');
+        var statusText = document.getElementById('status-text');
+        var statusActionBtn = document.getElementById('status-action-btn');
+
+        var searchInput = document.getElementById('search-input');
+        var searchBtn = document.getElementById('search-btn');
+        var logoBtn = document.getElementById('logo-btn');
+        var menuToggleBtn = document.getElementById('menu-toggle-btn');
+        var sidebar = document.getElementById('sidebar');
+        var sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        var chipsBar = document.getElementById('chips-bar');
+
+        var apiModal = document.getElementById('api-modal');
+        var apiKeyInput = document.getElementById('api-key-input');
+        var btnSaveApi = document.getElementById('btn-save-api');
+        var btnCancelApi = document.getElementById('btn-cancel-api');
+        var settingsBtn = document.getElementById('settings-btn');
+        var navSettings = document.getElementById('nav-settings');
+
+        // Nạp Thư viện YouTube IFrame Player API chính thức
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Khởi tạo YouTube Player khi API đã tải xong
+        function onYouTubeIframeAPIReady() {
+            try {
+                player = new YT.Player('youtube-player', {
+                    playerVars: {
+                        'playsinline': 1,
+                        'controls': 1,
+                        'rel': 0,
+                        'modestbranding': 1,
+                        'enablejsapi': 1,
+                        'origin': window.location.origin || '*'
+                    }
+                });
+            } catch (e) {
+                console.log("Khởi tạo player sẵn sàng dự phòng");
+            }
+        }
+
+        // ==========================================================================
+        // GIAO TIẾP VỚI YOUTUBE DATA API V3 BẰNG PROMISE (TƯƠNG THÍCH SAFARI 10)
+        // ==========================================================================
+        function fetchAPI(endpoint, params) {
+            if (!API_KEY) {
+                return new Promise(function(resolve, reject) {
+                    reject(new Error("CHƯA_CÓ_KEY"));
+                });
+            }
+
+            var url = 'https://www.googleapis.com/youtube/v3/' + endpoint + '?key=' + API_KEY;
+            for (var key in params) {
+                if (params.hasOwnProperty(key) && params[key] !== null && params[key] !== undefined) {
+                    url += '&' + key + '=' + encodeURIComponent(params[key]);
+                }
+            }
+
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                var data = JSON.parse(xhr.responseText);
+                                resolve(data);
+                            } catch (e) {
+                                reject(new Error("Lỗi đọc JSON từ YouTube API"));
+                            }
+                        } else {
+                            try {
+                                var errData = JSON.parse(xhr.responseText);
+                                var msg = (errData && errData.error && errData.error.message) ? errData.error.message : ("Mã lỗi HTTP " + xhr.status);
+                                reject(new Error(msg));
+                            } catch (err) {
+                                reject(new Error("Lỗi kết nối máy chủ YouTube (" + xhr.status + ")"));
+                            }
+                        }
+                    }
+                };
+                xhr.onerror = function() {
+                    reject(new Error("Lỗi mạng khi kết nối tới YouTube"));
+                };
+                xhr.send();
+            });
+        }
+
+        // ==========================================================================
+        // HÀM TIỆN ÍCH ĐỊNH DẠNG SỐ VÀ THỜI GIAN
+        // ==========================================================================
+        function formatNumber(num) {
+            if (!num) return '0';
+            var n = parseInt(num, 10);
+            if (isNaN(n)) return '0';
+            if (n >= 1000000000) {
+                return (n / 1000000000).toFixed(1).replace('.', ',') + ' Tỷ';
+            }
+            if (n >= 1000000) {
+                return (n / 1000000).toFixed(1).replace('.', ',') + ' Tr';
+            }
+            if (n >= 1000) {
+                return (n / 1000).toFixed(1).replace('.', ',') + ' N';
+            }
+            return n.toString();
+        }
+
+        function timeSince(dateString) {
+            if (!dateString) return 'Gần đây';
+            var date = new Date(dateString);
+            var seconds = Math.floor((new Date() - date) / 1000);
+            if (isNaN(seconds) || seconds < 0) return 'Gần đây';
+
+            var interval = Math.floor(seconds / 31536000);
+            if (interval >= 1) return interval + " năm trước";
+            interval = Math.floor(seconds / 2592000);
+            if (interval >= 1) return interval + " tháng trước";
+            interval = Math.floor(seconds / 604800);
+            if (interval >= 1) return interval + " tuần trước";
+            interval = Math.floor(seconds / 86400);
+            if (interval >= 1) return interval + " ngày trước";
+            interval = Math.floor(seconds / 3600);
+            if (interval >= 1) return interval + " giờ trước";
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) return interval + " phút trước";
+
+            return "Vừa xong";
+        }
+
+        // Hiển thị thông báo trạng thái
+        function showStatus(text, isError, showBtn) {
+            statusBanner.classList.remove('hidden-view');
+            if (isError) {
+                statusBanner.classList.add('error');
+            } else {
+                statusBanner.classList.remove('error');
+            }
+            statusText.textContent = text;
+            if (showBtn) {
+                statusActionBtn.classList.remove('hidden-view');
+            } else {
+                statusActionBtn.classList.add('hidden-view');
+            }
+        }
+
+        function hideStatus() {
+            statusBanner.classList.add('hidden-view');
+        }
+
+        // ==========================================================================
+        // QUẢN LÝ CHUYỂN ĐỔI GIAO DIỆN & ĐIỀU HƯỚNG LỊCH SỬ (HISTORY)
+        // ==========================================================================
+        function navigateView(viewName, pushHistory) {
+            if (pushHistory !== false) {
+                try {
+                    window.history.pushState({ view: viewName }, '', '#' + viewName);
+                } catch (e) {}
+            }
+
+            homeView.classList.add('hidden-view');
+            channelView.classList.add('hidden-view');
+            watchView.classList.add('hidden-view');
+
+            if (viewName === 'home') {
+                homeView.classList.remove('hidden-view');
+                if (player && typeof player.pauseVideo === 'function') {
+                    try { player.pauseVideo(); } catch (e) {}
+                }
+            } else if (viewName === 'channel') {
+                channelView.classList.remove('hidden-view');
+                if (player && typeof player.pauseVideo === 'function') {
+                    try { player.pauseVideo(); } catch (e) {}
+                }
+            } else if (viewName === 'watch') {
+                watchView.classList.remove('hidden-view');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.view) {
+                navigateView(e.state.view, false);
+            } else {
+                navigateView('home', false);
+            }
+        });
+
+        // ==========================================================================
+        // KHỞI TẠO VÀ XÂY DỰNG THẺ VIDEO (VIDEO CARDS)
+        // ==========================================================================
+        function createVideoCardElement(item, isSearch, isPlaylist) {
+            var snippet = item.snippet || {};
+            var videoId = null;
+
+            if (isPlaylist) {
+                // Item từ danh sách phát của kênh (playlistItems)
+                if (item.contentDetails && item.contentDetails.videoId) {
+                    videoId = item.contentDetails.videoId;
+                } else if (snippet.resourceId && snippet.resourceId.videoId) {
+                    videoId = snippet.resourceId.videoId;
+                }
+            } else if (isSearch) {
+                // Item từ tìm kiếm
+                videoId = (item.id && item.id.videoId) ? item.id.videoId : null;
+            } else {
+                // Item từ videos.list
+                videoId = (typeof item.id === 'string') ? item.id : (item.id ? item.id.videoId : null);
+            }
+
+            if (!videoId) return null;
+
+            var title = snippet.title || 'Video YouTube';
+            var channelTitle = snippet.channelTitle || 'Kênh YouTube';
+            var channelId = snippet.channelId || '';
+            var publishedAt = timeSince(snippet.publishedAt);
+            var viewsText = (item.statistics && item.statistics.viewCount) ? (formatNumber(item.statistics.viewCount) + ' lượt xem • ') : '';
+
+            var thumbs = snippet.thumbnails || {};
+            var thumbUrl = (thumbs.medium && thumbs.medium.url) ? thumbs.medium.url : ((thumbs.default && thumbs.default.url) ? thumbs.default.url : 'https://i.ytimg.com/vi/' + videoId + '/mqdefault.jpg');
+            var initial = channelTitle.charAt(0).toUpperCase();
+
+            var col = document.createElement('div');
+            col.className = 'yt-card-col';
+
+            var card = document.createElement('div');
+            card.className = 'video-card';
+
+            // Khung hình thu nhỏ
+            var thumbWrap = document.createElement('div');
+            thumbWrap.className = 'card-thumb-wrap';
+            thumbWrap.innerHTML = 
+                '<div class="ratio-16-9">' +
+                    '<img src="' + thumbUrl + '" alt="" loading="lazy">' +
+                '</div>' +
+                '<div class="card-duration-badge">HD</div>';
+            thumbWrap.onclick = function() {
+                playVideo(videoId);
+            };
+            card.appendChild(thumbWrap);
+
+            // Khung thông tin video
+            var infoRow = document.createElement('div');
+            infoRow.className = 'card-info-row';
+
+            // Avatar kênh
+            var avatarEl = document.createElement('div');
+            avatarEl.className = 'card-channel-avatar';
+            avatarEl.textContent = initial;
+            avatarEl.title = 'Xem kênh: ' + channelTitle;
+            avatarEl.onclick = function(e) {
+                e.stopPropagation();
+                if (channelId) {
+                    viewChannel(channelId, channelTitle);
+                }
+            };
+            infoRow.appendChild(avatarEl);
+
+            // Tiêu đề & metadata
+            var metaEl = document.createElement('div');
+            metaEl.className = 'card-meta';
+
+            var titleEl = document.createElement('h3');
+            titleEl.className = 'card-title line-clamp-2';
+            titleEl.textContent = title;
+            titleEl.title = title;
+            titleEl.onclick = function() {
+                playVideo(videoId);
+            };
+            metaEl.appendChild(titleEl);
+
+            var channelNameEl = document.createElement('div');
+            channelNameEl.className = 'card-channel-name';
+            channelNameEl.title = 'Xem kênh ' + channelTitle;
+            channelNameEl.innerHTML = 
+                '<span>' + channelTitle + '</span>' +
+                '<svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1 1.4-1.4 2.8 2.7 7.4-7.4 1.4 1.4-8.8 8.8z"></path></svg>';
+            channelNameEl.onclick = function(e) {
+                e.stopPropagation();
+                if (channelId) {
+                    viewChannel(channelId, channelTitle);
+                }
+            };
+            metaEl.appendChild(channelNameEl);
+
+            var timeEl = document.createElement('div');
+            timeEl.className = 'card-views-time';
+            timeEl.textContent = viewsText + publishedAt;
+            metaEl.appendChild(timeEl);
+
+            infoRow.appendChild(metaEl);
+            card.appendChild(infoRow);
+            col.appendChild(card);
+
+            return col;
+        }
+
+        // Hiển thị danh sách video trên Trang chủ
+        function renderVideoGrid(items, isSearch, append) {
+            if (!append) {
+                videoGrid.innerHTML = '';
+            }
+
+            if (!items || items.length === 0) {
+                if (!append) {
+                    showStatus('Không tìm thấy video nào phù hợp.', false, false);
+                }
+                return;
+            }
+
+            hideStatus();
+            for (var i = 0; i < items.length; i++) {
+                var el = createVideoCardElement(items[i], isSearch, false);
+                if (el) {
+                    videoGrid.appendChild(el);
+                }
+            }
+        }
+
+        // ==========================================================================
+        // TẢI DỮ LIỆU BẢNG TIN TRANG CHỦ (HOME FEED)
+        // ==========================================================================
+        function loadHomeFeed() {
+            navigateView('home');
+            document.getElementById('channel-search-result').classList.add('hidden-view');
+
+            if (!API_KEY) {
+                showStatus('Đang hiển thị video mẫu. Bấm "Cài đặt API" để nạp video trực tiếp từ YouTube.', false, true);
+                renderVideoGrid(MOCK_VIDEOS, false, false);
+                return;
+            }
+
+            showStatus('Đang tải video thịnh hành từ YouTube...', false, false);
+            fetchAPI('videos', {
+                part: 'snippet,contentDetails,statistics',
+                chart: 'mostPopular',
+                regionCode: 'VN',
+                maxResults: 24
+            }).then(function(data) {
+                hideStatus();
+                homeNextPageToken = data.nextPageToken || null;
+                renderVideoGrid(data.items, false, false);
+            }).catch(function(err) {
+                console.log("Lỗi tải video thịnh hành:", err);
+                showStatus('Lỗi: ' + err.message + '. Hiển thị video mẫu.', true, true);
+                renderVideoGrid(MOCK_VIDEOS, false, false);
+            });
+        }
+
+        // ==========================================================================
+        // TÌM KIẾM VIDEO VÀ KÊNH YOUTUBE (SEARCH)
+        // ==========================================================================
+        function executeSearch(query) {
+            if (!query || !query.trim()) return;
+            query = query.trim();
+            currentSearchKeyword = query;
+
+            navigateView('home');
+            showStatus('Đang tìm kiếm "' + query + '"...', false, false);
+            videoGrid.innerHTML = '';
+            document.getElementById('channel-search-result').classList.add('hidden-view');
+
+            if (!API_KEY) {
+                showStatus('Cần cài đặt API Key để tìm kiếm trực tiếp trên YouTube.', true, true);
+                return;
+            }
+
+            fetchAPI('search', {
+                part: 'snippet',
+                q: query,
+                maxResults: 24,
+                type: 'video,channel'
+            }).then(function(data) {
+                hideStatus();
+                if (!data.items || data.items.length === 0) {
+                    showStatus('Không có kết quả nào cho "' + query + '"', false, false);
+                    return;
+                }
+
+                var channelItem = null;
+                var videoItems = [];
+
+                for (var i = 0; i < data.items.length; i++) {
+                    var it = data.items[i];
+                    if (it.id && it.id.channelId && !channelItem) {
+                        channelItem = it;
+                    } else if (it.id && it.id.videoId) {
+                        videoItems.push(it);
+                    }
+                }
+
+                // Nếu có Kênh trong kết quả tìm kiếm, hiển thị Thẻ Kênh đặc biệt ở trên cùng!
+                if (channelItem) {
+                    renderChannelSearchCard(channelItem);
+                }
+
+                renderVideoGrid(videoItems, true, false);
+            }).catch(function(err) {
+                showStatus('Lỗi tìm kiếm: ' + err.message, true, true);
+            });
+        }
+
+        // Hiển thị Thẻ Kênh trong kết quả tìm kiếm
+        function renderChannelSearchCard(item) {
+            var chId = item.id.channelId;
+            var snippet = item.snippet || {};
+            var title = snippet.channelTitle || snippet.title || 'Kênh YouTube';
+            var desc = snippet.description || 'Không có mô tả';
+            var thumbs = snippet.thumbnails || {};
+            var thumbUrl = (thumbs.medium && thumbs.medium.url) ? thumbs.medium.url : ((thumbs.default && thumbs.default.url) ? thumbs.default.url : '');
+
+            var container = document.getElementById('channel-search-result');
+            container.innerHTML = 
+                '<div class="channel-search-card" id="search-card-click">' +
+                    '<div class="channel-search-avatar">' +
+                        (thumbUrl ? '<img src="' + thumbUrl + '" alt="">' : title.charAt(0).toUpperCase()) +
+                    '</div>' +
+                    '<div class="channel-search-info">' +
+                        '<div class="channel-search-title">' +
+                            '<span>' + title + '</span>' +
+                            '<svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1 1.4-1.4 2.8 2.7 7.4-7.4 1.4 1.4-8.8 8.8z"></path></svg>' +
+                        '</div>' +
+                        '<div class="channel-search-meta">Kênh YouTube chính thức</div>' +
+                        '<div class="channel-search-desc line-clamp-2">' + desc + '</div>' +
+                    '</div>' +
+                    '<button class="channel-search-btn">XEM KÊNH</button>' +
+                '</div>';
+
+            container.classList.remove('hidden-view');
+
+            document.getElementById('search-card-click').onclick = function() {
+                viewChannel(chId, title);
+            };
+        }
+
+        // ==========================================================================
+        // TRANG KÊNH YOUTUBE CHI TIẾT (CHANNEL PAGE VIEW) - TÍNH NĂNG ĐẶC SẮC
+        // ==========================================================================
+        function viewChannel(channelId, channelFallbackTitle) {
+            if (!channelId) return;
+            currentChannelId = channelId;
+            channelNextPageToken = null;
+
+            navigateView('channel');
+
+            // Thiết lập giá trị tạm thời trong khi tải
+            document.getElementById('channel-header-title').querySelector('span').textContent = channelFallbackTitle || 'Đang tải kênh...';
+            document.getElementById('channel-header-submeta').textContent = 'Đang tải thông tin...';
+            document.getElementById('channel-header-desc').textContent = '';
+            document.getElementById('channel-video-grid').innerHTML = '<div style="padding:20px;color:#aaa;">Đang nạp video của kênh...</div>';
+            document.getElementById('channel-banner-img').classList.add('hidden-view');
+
+            // Reset tab về tab Video
+            activateChannelTab('videos');
+
+            if (!API_KEY) {
+                showStatus('Cần API Key để xem đầy đủ nội dung kênh. Đang hiển thị danh sách video gợi ý.', false, true);
+                renderChannelVideos(MOCK_VIDEOS, false);
+                return;
+            }
+
+            // Gọi API channels để lấy toàn bộ thông tin chi tiết của kênh
+            fetchAPI('channels', {
+                part: 'snippet,contentDetails,statistics,brandingSettings',
+                id: channelId
+            }).then(function(data) {
+                if (data.items && data.items.length > 0) {
+                    var ch = data.items[0];
+                    var snippet = ch.snippet || {};
+                    var stats = ch.statistics || {};
+                    var contentDetails = ch.contentDetails || {};
+                    var branding = ch.brandingSettings || {};
+
+                    // 1. Cập nhật Banner kênh
+                    var bannerUrl = null;
+                    if (branding.image && branding.image.bannerExternalUrl) {
+                        bannerUrl = branding.image.bannerExternalUrl + '=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj';
+                    }
+                    var bannerImg = document.getElementById('channel-banner-img');
+                    if (bannerUrl) {
+                        bannerImg.src = bannerUrl;
+                        bannerImg.classList.remove('hidden-view');
+                    } else {
+                        bannerImg.classList.add('hidden-view');
+                    }
+
+                    // 2. Cập nhật Avatar kênh
+                    var avatarUrl = (snippet.thumbnails && snippet.thumbnails.high) ? snippet.thumbnails.high.url : ((snippet.thumbnails && snippet.thumbnails.medium) ? snippet.thumbnails.medium.url : '');
+                    var avatarImg = document.getElementById('channel-header-avatar-img');
+                    var avatarTxt = document.getElementById('channel-header-avatar-txt');
+                    if (avatarUrl) {
+                        avatarImg.src = avatarUrl;
+                        avatarImg.classList.remove('hidden-view');
+                        avatarTxt.classList.add('hidden-view');
+                    } else {
+                        avatarTxt.textContent = (snippet.title || 'Y').charAt(0).toUpperCase();
+                        avatarTxt.classList.remove('hidden-view');
+                        avatarImg.classList.add('hidden-view');
+                    }
+
+                    // 3. Tiêu đề, Handle, Số lượng Subscriber và Video
+                    var title = snippet.title || channelFallbackTitle || 'Kênh YouTube';
+                    var handle = snippet.customUrl ? snippet.customUrl : '';
+                    var subsText = stats.subscriberCount ? (formatNumber(stats.subscriberCount) + ' người đăng ký') : 'Chưa công khai số đăng ký';
+                    var vidsText = stats.videoCount ? (formatNumber(stats.videoCount) + ' video') : '';
+
+                    document.getElementById('channel-header-title').querySelector('span').textContent = title;
+                    document.getElementById('channel-header-submeta').textContent = (handle ? (handle + ' • ') : '') + subsText + (vidsText ? (' • ' + vidsText) : '');
+                    document.getElementById('channel-header-desc').textContent = snippet.description || 'Chưa có giới thiệu.';
+
+                    // 4. Tab Giới thiệu chi tiết
+                    document.getElementById('about-full-desc').textContent = snippet.description || 'Chưa có giới thiệu.';
+                    document.getElementById('about-published-date').textContent = 'Đã tham gia: ' + (snippet.publishedAt ? (new Date(snippet.publishedAt)).toLocaleDateString('vi-VN') : '--');
+                    document.getElementById('about-total-views').textContent = (stats.viewCount ? formatNumber(stats.viewCount) : '0') + ' lượt xem toàn kênh';
+                    document.getElementById('about-country').textContent = 'Quốc gia: ' + (snippet.country || 'Việt Nam');
+
+                    // 5. Lấy danh sách video đã tải lên (Uploads Playlist - Tối ưu 1 unit quota!)
+                    var uploadsId = (contentDetails.relatedPlaylists && contentDetails.relatedPlaylists.uploads) ? contentDetails.relatedPlaylists.uploads : null;
+                    if (uploadsId) {
+                        currentUploadsPlaylistId = uploadsId;
+                        loadChannelUploads(uploadsId, null);
+                    } else {
+                        // Fallback bằng search video theo channelId
+                        loadChannelVideosBySearch(channelId);
+                    }
+                } else {
+                    document.getElementById('channel-header-title').querySelector('span').textContent = channelFallbackTitle || 'Kênh YouTube';
+                    loadChannelVideosBySearch(channelId);
+                }
+            }).catch(function(err) {
+                console.log("Lỗi tải thông tin kênh:", err);
+                loadChannelVideosBySearch(channelId);
+            });
+        }
+
+        // Tải danh sách video của kênh qua Uploads Playlist (Tiết kiệm 100 lần Quota API!)
+        function loadChannelUploads(uploadsPlaylistId, pageToken) {
+            var params = {
+                part: 'snippet,contentDetails',
+                playlistId: uploadsPlaylistId,
+                maxResults: 24
+            };
+            if (pageToken) {
+                params.pageToken = pageToken;
+            }
+
+            fetchAPI('playlistItems', params).then(function(data) {
+                channelNextPageToken = data.nextPageToken || null;
+                renderChannelVideos(data.items, pageToken ? true : false);
+
+                var loadMoreWrap = document.getElementById('channel-load-more-wrap');
+                if (channelNextPageToken) {
+                    loadMoreWrap.classList.remove('hidden-view');
+                } else {
+                    loadMoreWrap.classList.add('hidden-view');
+                }
+            }).catch(function(err) {
+                console.log("Lỗi tải uploads playlist:", err);
+                loadChannelVideosBySearch(currentChannelId);
+            });
+        }
+
+        // Fallback: Tìm video của kênh qua search API
+        function loadChannelVideosBySearch(channelId) {
+            fetchAPI('search', {
+                part: 'snippet',
+                channelId: channelId,
+                order: 'date',
+                type: 'video',
+                maxResults: 24
+            }).then(function(data) {
+                renderChannelVideos(data.items, false);
+            }).catch(function(err) {
+                document.getElementById('channel-video-grid').innerHTML = '<div style="padding:20px;color:#f55;">Không thể tải danh sách video của kênh này.</div>';
+            });
+        }
+
+        // Hiển thị danh sách video trong trang kênh
+        function renderChannelVideos(items, append) {
+            var grid = document.getElementById('channel-video-grid');
+            if (!append) {
+                grid.innerHTML = '';
+            }
+
+            if (!items || items.length === 0) {
+                if (!append) {
+                    grid.innerHTML = '<div style="padding:20px;color:#aaa;">Kênh này chưa có video nào.</div>';
+                }
+                return;
+            }
+
+            for (var i = 0; i < items.length; i++) {
+                var el = createVideoCardElement(items[i], false, true);
+                if (el) {
+                    grid.appendChild(el);
+                }
+            }
+        }
+
+        // Tải danh sách phát của kênh (Playlists Tab)
+        function loadChannelPlaylists(channelId) {
+            var grid = document.getElementById('channel-playlists-grid');
+            grid.innerHTML = '<div style="padding:20px;color:#aaa;">Đang tải danh sách phát...</div>';
+
+            fetchAPI('playlists', {
+                part: 'snippet,contentDetails',
+                channelId: channelId,
+                maxResults: 20
+            }).then(function(data) {
+                grid.innerHTML = '';
+                if (!data.items || data.items.length === 0) {
+                    grid.innerHTML = '<div style="padding:20px;color:#aaa;">Kênh này không có danh sách phát công khai.</div>';
+                    return;
+                }
+
+                for (var i = 0; i < data.items.length; i++) {
+                    var pl = data.items[i];
+                    var snippet = pl.snippet || {};
+                    var itemCount = pl.contentDetails ? pl.contentDetails.itemCount : 0;
+                    var thumbUrl = (snippet.thumbnails && snippet.thumbnails.medium) ? snippet.thumbnails.medium.url : '';
+
+                    var col = document.createElement('div');
+                    col.className = 'yt-card-col';
+                    col.innerHTML = 
+                        '<div class="video-card">' +
+                            '<div class="card-thumb-wrap">' +
+                                '<div class="ratio-16-9">' +
+                                    '<img src="' + thumbUrl + '" alt="" loading="lazy">' +
+                                '</div>' +
+                                '<div class="card-duration-badge">' + itemCount + ' video</div>' +
+                            '</div>' +
+                            '<div class="card-info-row">' +
+                                '<div class="card-meta">' +
+                                    '<h3 class="card-title line-clamp-2">' + snippet.title + '</h3>' +
+                                    '<div class="card-views-time">Danh sách phát • ' + itemCount + ' mục</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+
+                    grid.appendChild(col);
+                }
+            }).catch(function(err) {
+                grid.innerHTML = '<div style="padding:20px;color:#aaa;">Không thể tải danh sách phát.</div>';
+            });
+        }
+
+        // Quản lý chuyển tab trong trang Kênh (Video, Playlists, About)
+        function activateChannelTab(tabName) {
+            var tabBtns = document.querySelectorAll('.channel-tab-btn');
+            for (var i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove('active');
+            }
+
+            document.getElementById('channel-tab-content-videos').classList.add('hidden-view');
+            document.getElementById('channel-tab-content-playlists').classList.add('hidden-view');
+            document.getElementById('channel-tab-content-about').classList.add('hidden-view');
+
+            if (tabName === 'videos') {
+                document.getElementById('tab-btn-videos').classList.add('active');
+                document.getElementById('channel-tab-content-videos').classList.remove('hidden-view');
+            } else if (tabName === 'playlists') {
+                document.getElementById('tab-btn-playlists').classList.add('active');
+                document.getElementById('channel-tab-content-playlists').classList.remove('hidden-view');
+                if (currentChannelId) {
+                    loadChannelPlaylists(currentChannelId);
+                }
+            } else if (tabName === 'about') {
+                document.getElementById('tab-btn-about').classList.add('active');
+                document.getElementById('channel-tab-content-about').classList.remove('hidden-view');
+            }
+        }
+
+        document.getElementById('tab-btn-videos').onclick = function() { activateChannelTab('videos'); };
+        document.getElementById('tab-btn-playlists').onclick = function() { activateChannelTab('playlists'); };
+        document.getElementById('tab-btn-about').onclick = function() { activateChannelTab('about'); };
+
+        document.getElementById('btn-load-more-channel').onclick = function() {
+            if (currentUploadsPlaylistId && channelNextPageToken) {
+                loadChannelUploads(currentUploadsPlaylistId, channelNextPageToken);
+            }
+        };
+
+        // ==========================================================================
+        // PHÁT VIDEO TRÊN YOUTUBE PLAYER GỐC (WATCH VIEW)
+        // - Giữ nguyên toàn bộ tính năng chỉnh độ phân giải, tua video, tốc độ
+        // ==========================================================================
+        function playVideo(videoId) {
+            if (!videoId) return;
+            currentVideoId = videoId;
+
+            navigateView('watch');
+
+            // Nạp video vào trình phát YouTube chuẩn
+            if (player && typeof player.loadVideoById === 'function') {
+                try {
+                    player.loadVideoById(videoId);
+                } catch (e) {
+                    var wrap = document.getElementById('youtube-player');
+                    wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&playsinline=1&controls=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>';
+                }
+            } else {
+                var p = document.getElementById('youtube-player');
+                if (p) {
+                    p.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&playsinline=1&controls=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>';
+                }
+            }
+
+            // Đặt thông tin chờ
+            document.getElementById('watch-title').textContent = 'Đang tải thông tin video...';
+            document.getElementById('watch-stats-line').textContent = 'Đang cập nhật lượt xem...';
+
+            // Lấy chi tiết thông tin video
+            fetchAPI('videos', {
+                part: 'snippet,statistics',
+                id: videoId
+            }).then(function(data) {
+                if (data.items && data.items.length > 0) {
+                    var item = data.items[0];
+                    var snippet = item.snippet || {};
+                    var stats = item.statistics || {};
+
+                    var title = snippet.title || 'Video YouTube';
+                    var channelTitle = snippet.channelTitle || 'Kênh YouTube';
+                    var chId = snippet.channelId || '';
+                    var viewCount = stats.viewCount ? (formatNumber(stats.viewCount) + ' lượt xem') : '0 lượt xem';
+                    var pubDate = snippet.publishedAt ? (new Date(snippet.publishedAt)).toLocaleDateString('vi-VN') : '';
+                    var likeCount = stats.likeCount ? formatNumber(stats.likeCount) : 'Thích';
+
+                    document.getElementById('watch-title').textContent = title;
+                    document.getElementById('watch-stats-line').textContent = viewCount + ' • Xuất bản: ' + pubDate;
+                    document.getElementById('watch-channel-name-txt').textContent = channelTitle;
+                    document.getElementById('watch-likes-count').textContent = likeCount;
+
+                    var avatarImg = document.getElementById('watch-channel-avatar-img');
+                    var avatarTxt = document.getElementById('watch-channel-avatar-txt');
+                    avatarTxt.textContent = channelTitle.charAt(0).toUpperCase();
+
+                    var descEl = document.getElementById('watch-desc-text');
+                    descEl.textContent = snippet.description || 'Không có mô tả cho video này.';
+                    descEl.classList.add('line-clamp-2');
+
+                    var toggleBtn = document.getElementById('btn-toggle-desc');
+                    toggleBtn.textContent = 'Hiện thêm';
+                    toggleBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        if (descEl.classList.contains('line-clamp-2')) {
+                            descEl.classList.remove('line-clamp-2');
+                            toggleBtn.textContent = 'Ẩn bớt';
+                        } else {
+                            descEl.classList.add('line-clamp-2');
+                            toggleBtn.textContent = 'Hiện thêm';
+                        }
+                    };
+
+                    // Gắn sự kiện click vào nhóm Kênh để mở trang kênh
+                    var channelGroup = document.getElementById('watch-channel-group');
+                    channelGroup.onclick = function() {
+                        if (chId) {
+                            viewChannel(chId, channelTitle);
+                        }
+                    };
+
+                    // Tải danh sách video liên quan
+                    loadRelatedVideos(videoId, channelTitle);
+                }
+            }).catch(function(err) {
+                console.log("Lỗi lấy thông tin video:", err);
+                loadRelatedVideos(videoId, 'Video hay');
+            });
+        }
+
+        // Tải video liên quan cho cột bên phải
+        function loadRelatedVideos(videoId, query) {
+            var relatedContainer = document.getElementById('related-videos');
+            relatedContainer.innerHTML = '<div style="color:#888;font-size:13px;padding:12px 0;">Đang nạp video liên quan...</div>';
+
+            fetchAPI('search', {
+                part: 'snippet',
+                q: query || 'Việt Nam',
+                type: 'video',
+                maxResults: 15
+            }).then(function(data) {
+                relatedContainer.innerHTML = '';
+                if (data.items && data.items.length > 0) {
+                    for (var i = 0; i < data.items.length; i++) {
+                        var it = data.items[i];
+                        var id = it.id && it.id.videoId ? it.id.videoId : null;
+                        if (!id || id === videoId) continue;
+
+                        var snip = it.snippet || {};
+                        var thumbs = snip.thumbnails || {};
+                        var thumb = (thumbs.medium && thumbs.medium.url) ? thumbs.medium.url : '';
+                        var t = snip.title || '';
+                        var c = snip.channelTitle || '';
+                        var p = timeSince(snip.publishedAt);
+
+                        var card = document.createElement('div');
+                        card.className = 'related-card';
+                        card.onclick = (function(vid) {
+                            return function() {
+                                playVideo(vid);
+                            };
+                        })(id);
+
+                        card.innerHTML = 
+                            '<div class="related-thumb-wrap">' +
+                                '<div class="ratio-16-9">' +
+                                    '<img src="' + thumb + '" alt="" loading="lazy">' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="related-info">' +
+                                '<h4 class="related-title line-clamp-2" title="' + t.replace(/"/g, '&quot;') + '">' + t + '</h4>' +
+                                '<div class="related-channel">' + c + '</div>' +
+                                '<div class="related-meta">' + p + '</div>' +
+                            '</div>';
+
+                        relatedContainer.appendChild(card);
+                    }
+                } else {
+                    relatedContainer.innerHTML = '<div style="color:#888;font-size:13px;">Không có video liên quan.</div>';
+                }
+            }).catch(function(err) {
+                relatedContainer.innerHTML = '<div style="color:#888;font-size:13px;">Không thể tải danh sách liên quan.</div>';
+            });
+        }
+
+        // ==========================================================================
+        // SỰ KIỆN TƯƠNG TÁC (HEADER, SIDEBAR, MODAL, CHIPS)
+        // ==========================================================================
+        // Mở / đóng Sidebar
+        menuToggleBtn.onclick = function() {
+            if (window.innerWidth <= 768) {
+                document.body.classList.toggle('sidebar-open');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        sidebarBackdrop.onclick = function() {
+            document.body.classList.remove('sidebar-open');
+        };
+
+        // Bấm vào Logo: Về Trang chủ
+        logoBtn.onclick = function() {
+            loadHomeFeed();
+        };
+
+        document.getElementById('nav-home').onclick = function() {
+            if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+            loadHomeFeed();
+        };
+
+        // Nút tìm kiếm
+        searchBtn.onclick = function() {
+            executeSearch(searchInput.value);
+        };
+        searchInput.onkeypress = function(e) {
+            if (e.keyCode === 13) {
+                executeSearch(searchInput.value);
+            }
+        };
+
+        // Chips thể loại
+        chipsBar.onclick = function(e) {
+            var target = e.target;
+            if (target && target.classList.contains('chip')) {
+                var allChips = chipsBar.querySelectorAll('.chip');
+                for (var i = 0; i < allChips.length; i++) {
+                    allChips[i].classList.remove('active');
+                }
+                target.classList.add('active');
+
+                var kw = target.getAttribute('data-keyword');
+                if (!kw) {
+                    loadHomeFeed();
+                } else {
+                    executeSearch(kw);
+                }
+            }
+        };
+
+        // Sidebar mục phụ
+        document.getElementById('nav-trending').onclick = function() {
+            if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+            executeSearch('Thịnh hành');
+        };
+        document.getElementById('nav-music').onclick = function() {
+            if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+            executeSearch('Âm nhạc');
+        };
+        document.getElementById('nav-gaming').onclick = function() {
+            if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+            executeSearch('Trò chơi');
+        };
+
+        // Quản lý Modal Cài đặt API Key
+        function openApiModal() {
+            apiKeyInput.value = API_KEY;
+            apiModal.classList.remove('hidden-view');
+            apiKeyInput.focus();
+        }
+        function closeApiModal() {
+            apiModal.classList.add('hidden-view');
+        }
+
+        settingsBtn.onclick = openApiModal;
+        navSettings.onclick = function() {
+            if (window.innerWidth <= 768) document.body.classList.remove('sidebar-open');
+            openApiModal();
+        };
+        btnCancelApi.onclick = closeApiModal;
+        statusActionBtn.onclick = openApiModal;
+
+        btnSaveApi.onclick = function() {
+            var val = apiKeyInput.value.trim();
+            if (val) {
+                API_KEY = val;
+                localStorage.setItem('yt_api_key', API_KEY);
+                closeApiModal();
+                showStatus('Đã lưu API Key thành công!', false, false);
+                setTimeout(function() {
+                    loadHomeFeed();
+                }, 800);
+            } else {
+                alert('Vui lòng nhập API Key hợp lệ!');
+            }
+        };
+
+        // Nút Đăng ký (Subscribe toggle effect)
+        function setupSubscribeBtn(btnId) {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (btn.classList.contains('subscribed')) {
+                        btn.classList.remove('subscribed');
+                        btn.textContent = 'Đăng ký';
+                    } else {
+                        btn.classList.add('subscribed');
+                        btn.textContent = 'Đã đăng ký';
+                    }
+                };
+            }
+        }
+        setupSubscribeBtn('channel-subscribe-btn');
+        setupSubscribeBtn('watch-subscribe-btn');
+
+        // Nút Chia sẻ (Share)
+        document.getElementById('btn-share').onclick = function() {
+            if (currentVideoId) {
+                var shareUrl = 'https://youtu.be/' + currentVideoId;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareUrl);
+                }
+                alert('Đã tạo liên kết video:\n' + shareUrl);
+            }
+        };
+
+        // Khởi động ứng dụng khi trang web tải xong
+        window.onload = function() {
+            if (!API_KEY) {
+                loadHomeFeed();
+                // Gợi ý mở modal nếu chưa có key sau 1 giây
+                setTimeout(function() {
+                    if (!API_KEY) {
+                        showStatus('Mẹo: Nhấn vào nút "API Key" ở góc trên bên phải để cài đặt khóa YouTube của bạn.', false, true);
+                    }
+                }, 1000);
+            } else {
+                loadHomeFeed();
+            }
+        };
+    </script>
+</body>
+</html>
